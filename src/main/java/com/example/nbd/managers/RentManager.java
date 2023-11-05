@@ -4,10 +4,10 @@ import com.example.nbd.exceptions.ClientHasTooManyRentsException;
 import com.example.nbd.exceptions.ClientIsNotActiveException;
 import com.example.nbd.exceptions.DeviceAlreadyRentedException;
 import com.example.nbd.exceptions.InvalidDatesException;
-import com.example.nbd.model.Client;
+import com.example.nbd.model.users.Client;
 import com.example.nbd.model.Rent;
 import com.example.nbd.model.virtualdevices.VirtualDevice;
-import com.example.nbd.repositories.ClientRepository;
+import com.example.nbd.repositories.UserRepository;
 import com.example.nbd.repositories.RentRepository;
 import com.example.nbd.repositories.VirtualDeviceRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +27,10 @@ public class RentManager {
 
     private final VirtualDeviceRepository virtualDeviceRepository;
 
-    private final ClientManager clientManager;
-    private final ClientRepository clientRepository;
+    private final UserManager userManager;
+    private final UserRepository userRepository;
 
-    public void startRent(Client client, VirtualDevice virtualDevice,LocalDateTime startLocalDateTime, LocalDateTime endLocalDateTime) throws DeviceAlreadyRentedException, ClientHasTooManyRentsException, InvalidDatesException, ClientIsNotActiveException {
+    public void createRent(Client client, VirtualDevice virtualDevice, LocalDateTime startLocalDateTime, LocalDateTime endLocalDateTime) throws DeviceAlreadyRentedException, ClientHasTooManyRentsException, InvalidDatesException, ClientIsNotActiveException {
         if(startLocalDateTime.isAfter(endLocalDateTime)) {
             throw new InvalidDatesException();
         }
@@ -47,27 +47,40 @@ public class RentManager {
             rent.setClientId(client.getId());
             rent.setVirtualDeviceId(virtualDevice.getId());
             rentRepository.save(rent);
-            clientManager.addRent(client,rent);
+            userManager.addRentToCurrentRents(client,rent);
         } else {
             throw new DeviceAlreadyRentedException();
         }
     }
     public void endRent(Rent rent) {
-        clientManager.findClientById(rent.getClientId()).getActiveRents().remove(rent);
+        ((Client) userManager.findUserById(rent.getClientId())).getActiveRents().remove(rent);
         rent.setEndLocalDateTime(LocalDateTime.now());
-        clientRepository.findById(rent.getClientId()).ifPresent(client -> {
-            client.getActiveRents().remove(rent.getRentId());
-            clientRepository.save(client);
+        userRepository.findById(rent.getClientId()).ifPresent(client -> {
+            ((Client) client).getActiveRents().remove(rent.getRentId());
+            userRepository.save(client);
         });
     }
-    public void deleteRent(String id) {
+    public Rent deleteRent(String id) {
         rentRepository.deleteById(id);
+        return rentRepository.findById(id).orElse(null);
     }
     public List<Rent> findAllRents() {
         return rentRepository.findAll();
     }
     public Rent findRentById(String id) {
         return rentRepository.findById(id).orElse(null);
+    }
+
+    public Rent updateRent(Rent rent) {
+        var rentOpt = rentRepository.findById(rent.getRentId());
+        rentOpt.ifPresent(value -> {
+            value.setClientId(rent.getClientId());
+            value.setVirtualDeviceId(rent.getVirtualDeviceId());
+            value.setStartLocalDateTime(rent.getStartLocalDateTime());
+            value.setEndLocalDateTime(rent.getEndLocalDateTime());
+            rentRepository.save(value);
+        });
+        return rent;
     }
     public void updateEndLocalDateTime(String id, LocalDateTime endLocalDateTime) throws DeviceAlreadyRentedException {
         Rent rent = rentRepository.findById(id).orElse(null);

@@ -1,4 +1,4 @@
-package com.example.nbd.model;
+package com.example.nbd.model.users;
 
 
 import com.example.nbd.model.enums.ClientType;
@@ -11,16 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@ToString(callSuper = true)
 @Document
-public class Client {
+public class Client extends User {
 
-    @Id
-    private String id;
-    private String firstName;
-    private boolean isActive;
-    private String lastName;
     private ClientType clientType;
-    private Address address;
     private List<String> activeRents = new ArrayList<>();
-
 }

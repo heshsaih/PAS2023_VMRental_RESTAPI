@@ -3,13 +3,14 @@ package com.example.nbd.managers;
 import com.example.nbd.exceptions.NoMatchingDeviceFoundException;
 import com.example.nbd.model.enums.DatabaseType;
 import com.example.nbd.model.enums.OperatingSystemType;
+import com.example.nbd.model.enums.VirtualDeviceType;
 import com.example.nbd.model.virtualdevices.VirtualDatabaseServer;
 import com.example.nbd.model.virtualdevices.VirtualDevice;
 import com.example.nbd.model.virtualdevices.VirtualMachine;
 import com.example.nbd.model.virtualdevices.VirtualPhone;
+import com.example.nbd.repositories.RentRepository;
 import com.example.nbd.repositories.VirtualDeviceRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,112 +23,65 @@ import java.util.List;
 public class VirtualDeviceManager {
 
     private final VirtualDeviceRepository virtualDeviceRepository;
+    private final RentRepository rentRepository;
+    public VirtualDevice createVirtualDevice(VirtualDevice virtualDevice, VirtualDeviceType virtualDeviceType) throws NoMatchingDeviceFoundException {
+        if(virtualDeviceType == null) {
+            throw new NoMatchingDeviceFoundException();
+        }
+        switch(virtualDeviceType) {
+            case VIRTUAL_DATABASE_SERVER -> {
+                VirtualDatabaseServer virtualDatabaseServer = new VirtualDatabaseServer();
+                setVirtualDeviceProperties(virtualDatabaseServer,virtualDevice);
+                virtualDatabaseServer.setDatabase(((VirtualDatabaseServer) virtualDevice).getDatabase());
+                virtualDeviceRepository.save(virtualDatabaseServer);
+            }
+            case VIRTUAL_MACHINE -> {
+                VirtualMachine virtualMachine = new VirtualMachine();
+                setVirtualDeviceProperties(virtualMachine,virtualDevice);
+                virtualMachine.setOperatingSystemType(((VirtualMachine) virtualDevice).getOperatingSystemType());
+                virtualDeviceRepository.save(virtualMachine);
+            }
+            case VIRTUAL_PHONE -> {
+                VirtualPhone virtualPhone = new VirtualPhone();
+                setVirtualDeviceProperties(virtualPhone,virtualDevice);
+                virtualPhone.setPhoneNumber(((VirtualPhone) virtualDevice).getPhoneNumber());
+                virtualDeviceRepository.save(virtualPhone);
+            }
 
-    public void addVirtualPhone(int cpuCores,int ram, int storageSize, int number) {
-        VirtualPhone virtualPhone = new VirtualPhone();
-        virtualPhone.setPhoneNumber(number);
-        addVirtualDevice(virtualPhone,cpuCores,ram,storageSize);
+        }
+        throw new NoMatchingDeviceFoundException();
     }
-    public void addVirtualDatabaseServer(int cpuCores,int ram, int storageSize,DatabaseType databaseType) {
-        VirtualDatabaseServer virtualDatabaseServer = new VirtualDatabaseServer();
-        virtualDatabaseServer.setDatabase(databaseType);
-        addVirtualDevice(virtualDatabaseServer,cpuCores,ram,storageSize);
+
+    private void setVirtualDeviceProperties(VirtualDevice nonAbstractVirtualDevice, VirtualDevice virtualDevice){
+        nonAbstractVirtualDevice.setCpuCores(virtualDevice.getCpuCores());
+        nonAbstractVirtualDevice.setRam(virtualDevice.getRam());
+        nonAbstractVirtualDevice.setStorageSize(virtualDevice.getStorageSize());
     }
-    public void addVirtualMachine(int cpuCores,int ram, int storageSize, OperatingSystemType operatingSystemType) {
-        VirtualMachine virtualMachine = new VirtualMachine();
-        virtualMachine.setOperatingSystemType(operatingSystemType);
-        addVirtualDevice(virtualMachine,cpuCores, ram, storageSize);
+    public void updateVirtualDevice(String id,VirtualDevice virtualDevice) {
+        var virtualMachineOpt = virtualDeviceRepository.findById(id);
+        if(virtualMachineOpt.isPresent()) {
+            VirtualDevice virtualDevice1 = virtualMachineOpt.get();
+            virtualDevice1.setCpuCores(virtualDevice.getCpuCores());
+            virtualDevice1.setRam(virtualDevice.getRam());
+            virtualDevice1.setStorageSize(virtualDevice.getStorageSize());
+            if(virtualDevice1 instanceof VirtualDatabaseServer) {
+                ((VirtualDatabaseServer) virtualDevice1).setDatabase(((VirtualDatabaseServer) virtualDevice).getDatabase());
+            } else if(virtualDevice1 instanceof VirtualMachine) {
+                ((VirtualMachine) virtualDevice1).setOperatingSystemType(((VirtualMachine) virtualDevice).getOperatingSystemType());
+            } else if(virtualDevice1 instanceof VirtualPhone) {
+                ((VirtualPhone) virtualDevice1).setPhoneNumber(((VirtualPhone) virtualDevice).getPhoneNumber());
+            }
+            virtualDeviceRepository.save(virtualDevice1);
+        }
     }
-    private void addVirtualDevice(VirtualDevice virtualDevice,int cpuCores,int ram, int storageSize){
-        virtualDevice.setCpuCores(cpuCores);
-        virtualDevice.setRam(ram);
-        virtualDevice.setStorageSize(storageSize);
-        virtualDeviceRepository.save(virtualDevice);
-    }
-    public void deleteVirtualDevice(String id) {
+    public VirtualDevice deleteVirtualDevice(String id) {
+        if(rentRepository.findAll().stream().anyMatch(rent -> rent.getVirtualDeviceId().equals(id))) {
+            return virtualDeviceRepository.findById(id).orElse(null);
+        }
         virtualDeviceRepository.deleteById(id);
+        return virtualDeviceRepository.findById(id).orElse(null);
     }
 
-
-    public void updateVirtualDeviceRam(String id,int ram) {
-        virtualDeviceRepository.findById(id).ifPresent(virtualDevice -> {
-            virtualDevice.setRam(ram);
-            virtualDeviceRepository.save(virtualDevice);
-        });
-    }
-    public void updateVirtualDeviceStorageSize(String id,int storageSize) {
-        virtualDeviceRepository.findById(id).ifPresent(virtualDevice -> {
-            virtualDevice.setStorageSize(storageSize);
-            virtualDeviceRepository.save(virtualDevice);
-        });
-    }
-    public void updateVirtualDeviceCpuCores(String id,int cpuCores) {
-        virtualDeviceRepository.findById(id).ifPresent(virtualDevice -> {
-            virtualDevice.setCpuCores(cpuCores);
-            virtualDeviceRepository.save(virtualDevice);
-        });
-    }
-    public void updateVirtualMachineOperatingSystemType(String id,OperatingSystemType operatingSystemType) throws NoMatchingDeviceFoundException {
-        VirtualDevice virtualDevice = virtualDeviceRepository.findById(id).orElse(null);
-        if(virtualDevice != null) {
-            if(virtualDevice instanceof VirtualMachine) {
-                ((VirtualMachine) virtualDevice).setOperatingSystemType(operatingSystemType);
-                virtualDeviceRepository.save(virtualDevice);
-                return;
-            }
-        }
-        throw new NoMatchingDeviceFoundException();
-
-    }
-    public void updateVirtualDatabaseServerDatabaseType(String id,DatabaseType databaseType) throws NoMatchingDeviceFoundException {
-        VirtualDevice virtualDevice = virtualDeviceRepository.findById(id).orElse(null);
-        if(virtualDevice != null) {
-            if(virtualDevice instanceof VirtualDatabaseServer) {
-                ((VirtualDatabaseServer) virtualDevice).setDatabase(databaseType);
-                virtualDeviceRepository.save(virtualDevice);
-                return;
-            }
-        }
-        throw new NoMatchingDeviceFoundException();
-    }
-    public void updateVirtualPhonePhoneNumber(String id,int phoneNumber) throws NoMatchingDeviceFoundException {
-        VirtualDevice virtualDevice = virtualDeviceRepository.findById(id).orElse(null);
-        if(virtualDevice != null) {
-            if(virtualDevice instanceof VirtualPhone) {
-                ((VirtualPhone) virtualDevice).setPhoneNumber(phoneNumber);
-                virtualDeviceRepository.save(virtualDevice);
-                return;
-            }
-        }
-        throw new NoMatchingDeviceFoundException();
-    }
-    public OperatingSystemType getVirtualMachineOperatingSystemType(String id) throws NoMatchingDeviceFoundException {
-        VirtualDevice virtualDevice = virtualDeviceRepository.findById(id).orElse(null);
-        if (virtualDevice != null) {
-            if (virtualDevice instanceof VirtualMachine) {
-                return ((VirtualMachine) virtualDevice).getOperatingSystemType();
-            }
-        }
-        throw new NoMatchingDeviceFoundException();
-    }
-    public DatabaseType getVirtualDatabaseServerDatabaseType(String id) throws NoMatchingDeviceFoundException {
-        VirtualDevice virtualDevice = virtualDeviceRepository.findById(id).orElse(null);
-        if(virtualDevice != null) {
-            if(virtualDevice instanceof VirtualDatabaseServer) {
-                return ((VirtualDatabaseServer) virtualDevice).getDatabase();
-            }
-        }
-        throw new NoMatchingDeviceFoundException();
-    }
-    public int getVirtualPhonePhoneNumber(String id) throws NoMatchingDeviceFoundException {
-        VirtualDevice virtualDevice = virtualDeviceRepository.findById(id).orElse(null);
-        if(virtualDevice != null) {
-            if(virtualDevice instanceof VirtualPhone) {
-                return ((VirtualPhone) virtualDevice).getPhoneNumber();
-            }
-        }
-        throw new NoMatchingDeviceFoundException();
-    }
     public List<VirtualDevice> findAllVirtualDevices() {
         return virtualDeviceRepository.findAll();
     }
