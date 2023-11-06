@@ -1,9 +1,9 @@
 package com.example.vmrentalrest.managers;
 
-import com.example.vmrentalrest.exceptions.CantDeleteRentException;
-import com.example.vmrentalrest.exceptions.ClientHasTooManyRentsException;
-import com.example.vmrentalrest.exceptions.UserIsNotActiveException;
-import com.example.vmrentalrest.exceptions.DeviceAlreadyRentedException;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.CantDeleteRentException;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.ClientHasTooManyRentsException;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.UserIsNotActiveException;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DeviceAlreadyRentedException;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.CantUpdateRentException;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidDatesException;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidRentException;
@@ -14,6 +14,7 @@ import com.example.vmrentalrest.model.Rent;
 import com.example.vmrentalrest.repositories.UserRepository;
 import com.example.vmrentalrest.repositories.RentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
 package com.example.vmrentalrest;
 
-import com.example.vmrentalrest.exceptions.*;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.*;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.*;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.RentNotFoundException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.UserNotFoundException;

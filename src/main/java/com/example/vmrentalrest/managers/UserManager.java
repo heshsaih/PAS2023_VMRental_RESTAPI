@@ -1,6 +1,6 @@
 package com.example.vmrentalrest.managers;
 
-import com.example.vmrentalrest.exceptions.DuplicateRecordException;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DuplicateRecordException;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidUserException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.UserNotFoundException;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.UnknownUserTypeException;

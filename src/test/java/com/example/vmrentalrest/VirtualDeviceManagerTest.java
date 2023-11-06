@@ -1,6 +1,6 @@
 package com.example.vmrentalrest;
 
-import com.example.vmrentalrest.exceptions.DeviceHasAllocationException;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DeviceHasAllocationException;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidVirtualDeviceException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.VirtualDeviceNotFoundException;
 import com.example.vmrentalrest.managers.VirtualDeviceManager;
