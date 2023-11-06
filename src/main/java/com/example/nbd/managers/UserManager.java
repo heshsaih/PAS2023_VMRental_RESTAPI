@@ -11,6 +11,7 @@ import com.example.nbd.model.users.Client;
 import com.example.nbd.model.Rent;
 import com.example.nbd.model.users.ResourceManager;
 import com.example.nbd.model.users.User;
+import com.example.nbd.repositories.RentRepository;
 import com.example.nbd.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,8 +19,10 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -28,6 +31,7 @@ public class UserManager {
 
 
     private final UserRepository userRepository;
+    private final RentRepository rentRepository;
 
 
     public User createUser(User user,UserType userType) throws DuplicateRecordException, UnknownUserTypeException, InvalidUserException {
@@ -82,6 +86,18 @@ public class UserManager {
         } catch (NullPointerException e){
         }
         return false;
+    }
+    public void removeFromActiveRents(String clientId) throws UserNotFoundException {
+        userRepository.findById(clientId).ifPresent(client -> {
+            ((Client) client).setActiveRents(((Client) client).getActiveRents()
+                    .stream()
+                    .filter(value -> rentRepository
+                            .findById(value).get()
+                            .getEndLocalDateTime()
+                            .isBefore(LocalDateTime.now()))
+                    .collect(Collectors.toList()));
+            userRepository.save(client);
+        });
     }
     private void setUserProperties(User nonAbstractUser,User user) throws DuplicateRecordException {
         if(userRepository.existsByUsername(user.getUsername())){

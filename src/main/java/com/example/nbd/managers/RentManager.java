@@ -1,17 +1,18 @@
 package com.example.nbd.managers;
 
+import com.example.nbd.exceptions.CantDeleteRentException;
 import com.example.nbd.exceptions.ClientHasTooManyRentsException;
 import com.example.nbd.exceptions.UserIsNotActiveException;
 import com.example.nbd.exceptions.DeviceAlreadyRentedException;
+import com.example.nbd.exceptions.invalidParametersExceptions.CantUpdateRentException;
 import com.example.nbd.exceptions.invalidParametersExceptions.InvalidDatesException;
+import com.example.nbd.exceptions.invalidParametersExceptions.InvalidRentException;
 import com.example.nbd.exceptions.recordNotFoundExceptions.RentNotFoundException;
 import com.example.nbd.exceptions.recordNotFoundExceptions.UserNotFoundException;
 import com.example.nbd.model.users.Client;
 import com.example.nbd.model.Rent;
-import com.example.nbd.model.virtualdevices.VirtualDevice;
 import com.example.nbd.repositories.UserRepository;
 import com.example.nbd.repositories.RentRepository;
-import com.example.nbd.repositories.VirtualDeviceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -30,13 +30,16 @@ public class RentManager {
     private final UserManager userManager;
     private final UserRepository userRepository;
 
-    public Rent createRent(Rent rent) throws DeviceAlreadyRentedException, ClientHasTooManyRentsException, InvalidDatesException, UserIsNotActiveException, UserNotFoundException {
+    public Rent createRent(Rent rent) throws DeviceAlreadyRentedException, ClientHasTooManyRentsException, UserIsNotActiveException, UserNotFoundException, InvalidRentException {
+        if(rent == null) {
+            throw new InvalidRentException();
+        }
         if(rent.getClientId() == null
                 || rent.getVirtualDeviceId() == null
                 || rent.getStartLocalDateTime() == null
                 || rent.getEndLocalDateTime() == null
                 || rent.getStartLocalDateTime().isAfter(rent.getStartLocalDateTime())) {
-            throw new InvalidDatesException();
+            throw new InvalidRentException();
         }
         Client client = (Client) userManager.findUserById(rent.getClientId());
         if(!client.isActive()) {
@@ -45,7 +48,7 @@ public class RentManager {
         if(client.getActiveRents().size() >= client.getClientType().getValue()){
             throw new ClientHasTooManyRentsException();
         }
-        if(!willVirtualDeviceBeRented(rent.getVirtualDeviceId(), rent.getStartLocalDateTime(), rent.getEndLocalDateTime())) {
+        if(!willVirtualDeviceBeRented(rent)) {
             Rent newRent = new Rent();
             newRent.setStartLocalDateTime(rent.getStartLocalDateTime());
             newRent.setEndLocalDateTime(rent.getEndLocalDateTime());
@@ -58,34 +61,17 @@ public class RentManager {
             throw new DeviceAlreadyRentedException();
         }
     }
-    public void endRent(Rent rent) throws UserNotFoundException {
-        ((Client) userManager.findUserById(rent.getClientId())).getActiveRents().remove(rent);
-        rent.setEndLocalDateTime(LocalDateTime.now());
-        userRepository.findById(rent.getClientId()).ifPresent(client -> {
-            ((Client) client).getActiveRents().remove(rent.getRentId());
-            userRepository.save(client);
-        });
-    }
-    public void deleteRent(String id) throws UserNotFoundException, RentNotFoundException {
-        AtomicBoolean userFlag = new AtomicBoolean(false);
-        AtomicBoolean rentFlag = new AtomicBoolean(true);
-        rentRepository.findById(id).ifPresent(rent -> {
-            rentFlag.set(false);
-            try {
-                ((Client) userManager.findUserById(rent.getClientId())).getActiveRents().remove(rent);
-                userRepository.save(userManager.findUserById(rent.getClientId()));
-            } catch (UserNotFoundException e) {
-                userFlag.set(true);
-                throw new RuntimeException();
-            }
-            rentRepository.deleteById(id);
-        });
-        if(rentFlag.get()) {
-            throw new RentNotFoundException();
-        }else if(userFlag.get()) {
-            throw new UserNotFoundException();
+    public void deleteRent(String id) throws UserNotFoundException, RentNotFoundException, CantDeleteRentException {
+        Rent rent = rentRepository.findById(id).orElseThrow(RentNotFoundException::new);
+        if(LocalDateTime.now().isAfter(rent.getStartLocalDateTime())) {
+            throw new CantDeleteRentException();
         }
+        Client client = (Client) userManager.findUserById(rent.getClientId());
+        client.getActiveRents().remove(rent.getRentId());
+        userRepository.save(client);
+        rentRepository.deleteById(id);
     }
+
     public List<Rent> findAllRents() {
         return rentRepository.findAll();
     }
@@ -93,35 +79,32 @@ public class RentManager {
         return rentRepository.findById(id).orElseThrow(RentNotFoundException::new);
     }
 
-    public Rent updateRent(Rent rent) throws RentNotFoundException {
-        var rentOpt = rentRepository.findById(rent.getRentId());
-        rentOpt.ifPresent(value -> {
-            value.setClientId(rent.getClientId());
-            value.setVirtualDeviceId(rent.getVirtualDeviceId());
-            value.setStartLocalDateTime(rent.getStartLocalDateTime());
-            value.setEndLocalDateTime(rent.getEndLocalDateTime());
-            rentRepository.save(value);
-        });
-        return rentRepository.findById(rent.getRentId()).orElseThrow(RentNotFoundException::new);
-    }
-    public void updateEndLocalDateTime(String id, LocalDateTime endLocalDateTime) throws DeviceAlreadyRentedException, RentNotFoundException {
-        Rent rent = rentRepository.findById(id).orElseThrow(RentNotFoundException::new);
-        if(!willVirtualDeviceBeRented(rent.getVirtualDeviceId(),rent.getStartLocalDateTime(),endLocalDateTime)){
-            rent.setEndLocalDateTime(endLocalDateTime);
-            rentRepository.save(rent);
-        } else {
-            throw new DeviceAlreadyRentedException();
+    public Rent updateRent(String rentId,Rent rent) throws RentNotFoundException, CantUpdateRentException, InvalidRentException, InvalidDatesException {
+        if(rent == null) {
+            throw new InvalidRentException();
         }
+        var value = rentRepository.findById(rentId).orElseThrow(RentNotFoundException::new);
+            if(rent.getClientId() != null) value.setClientId(rent.getClientId());
+            if(rent.getVirtualDeviceId() != null) value.setVirtualDeviceId(rent.getVirtualDeviceId());
+            if(rent.getStartLocalDateTime() != null) value.setStartLocalDateTime(rent.getStartLocalDateTime());
+            if(rent.getEndLocalDateTime() != null) value.setEndLocalDateTime(rent.getEndLocalDateTime());
+            if(value.getStartLocalDateTime().isAfter(value.getEndLocalDateTime())) {
+                throw new InvalidDatesException();
+            }
+            if(willVirtualDeviceBeRented(value)) {
+                throw new CantUpdateRentException();
+            }
+            rentRepository.save(value);
+            return value;
     }
-    private boolean willVirtualDeviceBeRented(String virtualDeviceId, LocalDateTime startLocalDateTime, LocalDateTime endLocalDateTime) {
-        return rentRepository.findAllByVirtualDeviceId(virtualDeviceId)
+    private boolean willVirtualDeviceBeRented(Rent rent1) {
+        return rentRepository.findAllByVirtualDeviceId(rent1.getVirtualDeviceId())
                 .stream()
-                .filter(rent -> (
-                    rent.getStartLocalDateTime().isEqual(startLocalDateTime)
-                    || rent.getStartLocalDateTime().isBefore(startLocalDateTime) && rent.getEndLocalDateTime().isAfter(startLocalDateTime)
-                    || rent.getStartLocalDateTime().isBefore(endLocalDateTime) && rent.getEndLocalDateTime().isAfter(endLocalDateTime)
-                    || rent.getStartLocalDateTime().isAfter(startLocalDateTime) && rent.getEndLocalDateTime().isBefore(endLocalDateTime)
-                )).count() != 0;
+                .anyMatch(rent ->
+                        !rent.getRentId().equals(rent1.getRentId())
+                        &&(rent.getStartLocalDateTime().isBefore(rent1.getStartLocalDateTime()) && rent.getEndLocalDateTime().isAfter(rent1.getStartLocalDateTime())
+                        || rent.getStartLocalDateTime().isBefore(rent1.getEndLocalDateTime()) && rent.getEndLocalDateTime().isAfter(rent1.getEndLocalDateTime())
+                        || rent.getStartLocalDateTime().isAfter(rent1.getStartLocalDateTime()) && rent.getEndLocalDateTime().isBefore(rent1.getEndLocalDateTime())));
     }
     
 }
