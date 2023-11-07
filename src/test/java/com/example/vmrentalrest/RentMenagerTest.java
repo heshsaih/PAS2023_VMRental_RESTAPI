@@ -112,13 +112,13 @@ class RentMenagerTest {
         virtualPhone.setPhoneNumber(123456789);
         virtualDeviceManager.createVirtualDevice(virtualPhone, VirtualDeviceType.VIRTUAL_PHONE);
         Rent rent1 = new Rent();
-        rent1.setClientId(userManager.findAllUsers().get(0).getId());
+        rent1.setUserId(userManager.findAllUsers().get(0).getId());
         rent1.setVirtualDeviceId(virtualDeviceManager.findAllVirtualDevices().get(0).getId());
         rent1.setStartLocalDateTime(LocalDateTime.now().plusDays(1));
         rent1.setEndLocalDateTime(LocalDateTime.now().plusWeeks(2L));
         rentManager.createRent(rent1);
         Rent rent2 = new Rent();
-        rent2.setClientId(userManager.findAllUsers().get(1).getId());
+        rent2.setUserId(userManager.findAllUsers().get(1).getId());
         rent2.setVirtualDeviceId(virtualDeviceManager.findAllVirtualDevices().get(0).getId());
         rent2.setStartLocalDateTime(LocalDateTime.now().minusDays(5));
         rent2.setEndLocalDateTime(LocalDateTime.now().minusDays(1));
@@ -143,7 +143,7 @@ class RentMenagerTest {
     void createRentTest() throws DuplicateRecordException, UserIsNotActiveException, UserNotFoundException, InvalidDatesException, UnknownUserTypeException, DeviceAlreadyRentedException, ClientHasTooManyRentsException, InvalidVirtualDeviceException, InvalidUserException, InvalidRentException {
         createTestingData();
         Rent rent = new Rent();
-        rent.setClientId(userManager.findAllUsers().get(0).getId());
+        rent.setUserId(userManager.findAllUsers().get(0).getId());
         rent.setStartLocalDateTime(LocalDateTime.now());
         rent.setEndLocalDateTime(LocalDateTime.now().plusWeeks(3L));
         Assertions.assertThatThrownBy(() -> rentManager.createRent(rent)).isInstanceOf(InvalidRentException.class);
@@ -152,7 +152,7 @@ class RentMenagerTest {
         rent.setVirtualDeviceId(virtualDeviceManager.findAllVirtualDevices().get(2).getId());
         Assertions.assertThatThrownBy(() -> rentManager.createRent(rent)).isInstanceOf(UserIsNotActiveException.class);
         rent.setVirtualDeviceId(virtualDeviceManager.findAllVirtualDevices().get(0).getId());
-        Client client = (Client) userManager.findUserById(rent.getClientId());
+        Client client = (Client) userManager.findUserById(rent.getUserId());
         client.setClientType(ClientType.GOLD);
         userManager.updateUser(client.getId(), client);
         userManager.setActive(userManager.findAllUsers().get(0).getId());
@@ -165,7 +165,7 @@ class RentMenagerTest {
         createTestingData();
         try {
             Rent rent = new Rent();
-            rent.setClientId(userManager.findAllUsers().get(0).getId());
+            rent.setUserId(userManager.findAllUsers().get(0).getId());
             rent.setVirtualDeviceId(virtualDeviceManager.findAllVirtualDevices().get(0).getId());
             rent.setStartLocalDateTime(LocalDateTime.now());
             rent.setEndLocalDateTime(LocalDateTime.now().plusWeeks(3L));
@@ -208,10 +208,10 @@ class RentMenagerTest {
         String bufferedRentId = rentManager.findAllRents().get(0).getRentId();
         int bufferedRents = rentManager.findAllRents().size();
         var rent = rentManager.findRentById(bufferedRentId);
-        int ActiveRentsSize = ((Client) userManager.findUserById(rent.getClientId())).getActiveRents().size();
+        int ActiveRentsSize = ((Client) userManager.findUserById(rent.getUserId())).getActiveRents().size();
         rentManager.deleteRent(bufferedRentId);
         Assertions.assertThat(rentManager.findAllRents().size() == bufferedRents - 1).isTrue();
-        Assertions.assertThat(((Client) userManager.findUserById(rent.getClientId())).getActiveRents().size() == ActiveRentsSize - 1).isTrue();
+        Assertions.assertThat(((Client) userManager.findUserById(rent.getUserId())).getActiveRents().size() == ActiveRentsSize - 1).isTrue();
         Assertions.assertThatThrownBy(() -> rentManager.findRentById(bufferedRentId)).isInstanceOf(RentNotFoundException.class);
 
     }

@@ -94,29 +94,25 @@ public class VirtualDeviceManager {
             throw new InvalidVirtualDeviceException();
         }
     }
-    public VirtualDevice updateVirtualDevice(String id,VirtualDevice virtualDevice) throws VirtualDeviceNotFoundException {
-        var virtualDeviceOpt = virtualDeviceRepository.findById(id);
-        virtualDeviceOpt.ifPresent(value ->{
-            if(virtualDevice.getCpuCores() > 0) value.setCpuCores(virtualDevice.getCpuCores());
-            if(virtualDevice.getRam() > 0) value.setRam(virtualDevice.getRam());
-            if(virtualDevice.getStorageSize() > 0) value.setStorageSize(virtualDevice.getStorageSize());
-            if(value instanceof VirtualDatabaseServer
-                    && ((VirtualDatabaseServer) virtualDevice).getDatabase() != null
-                    && !((VirtualDatabaseServer) virtualDevice).getDatabase().equals(((VirtualDatabaseServer) value).getDatabase())) {
-                ((VirtualDatabaseServer) value).setDatabase(((VirtualDatabaseServer) virtualDevice).getDatabase());
-            } else if(value instanceof VirtualMachine
-                    && ((VirtualMachine) virtualDevice).getOperatingSystemType() != null
-                    && !((VirtualMachine) virtualDevice).getOperatingSystemType().equals(((VirtualMachine) value).getOperatingSystemType())) {
-                ((VirtualMachine) value).setOperatingSystemType(((VirtualMachine) virtualDevice).getOperatingSystemType());
-
-            } else if(value instanceof VirtualPhone
-                    && ((VirtualPhone) virtualDevice).getPhoneNumber() > 100000000
-                    && ((VirtualPhone) virtualDevice).getPhoneNumber() != (((VirtualPhone) value).getPhoneNumber())) {
-                ((VirtualPhone) value).setPhoneNumber(((VirtualPhone) virtualDevice).getPhoneNumber());
-            }
-            virtualDeviceRepository.save(value);
-        });
-        return virtualDeviceOpt.orElseThrow(VirtualDeviceNotFoundException::new);
+    public void updateVirtualDevice(String id,VirtualDevice virtualDevice) throws VirtualDeviceNotFoundException {
+        var value = virtualDeviceRepository.findById(id).orElseThrow(VirtualDeviceNotFoundException::new);
+        if(virtualDevice.getCpuCores() > 0) value.setCpuCores(virtualDevice.getCpuCores());
+        if(virtualDevice.getRam() > 0) value.setRam(virtualDevice.getRam());
+        if(virtualDevice.getStorageSize() > 0) value.setStorageSize(virtualDevice.getStorageSize());
+        if(value instanceof VirtualDatabaseServer
+                && ((VirtualDatabaseServer) virtualDevice).getDatabase() != null
+                && !((VirtualDatabaseServer) virtualDevice).getDatabase().equals(((VirtualDatabaseServer) value).getDatabase())) {
+            ((VirtualDatabaseServer) value).setDatabase(((VirtualDatabaseServer) virtualDevice).getDatabase());
+        } else if(value instanceof VirtualMachine
+                && ((VirtualMachine) virtualDevice).getOperatingSystemType() != null
+                && !((VirtualMachine) virtualDevice).getOperatingSystemType().equals(((VirtualMachine) value).getOperatingSystemType())) {
+            ((VirtualMachine) value).setOperatingSystemType(((VirtualMachine) virtualDevice).getOperatingSystemType());
+        } else if(value instanceof VirtualPhone
+                && ((VirtualPhone) virtualDevice).getPhoneNumber() > 100000000
+                && ((VirtualPhone) virtualDevice).getPhoneNumber() != (((VirtualPhone) value).getPhoneNumber())) {
+            ((VirtualPhone) value).setPhoneNumber(((VirtualPhone) virtualDevice).getPhoneNumber());
+        }
+        virtualDeviceRepository.save(value);
     }
     public void deleteVirtualDevice(String id) throws DeviceHasAllocationException, VirtualDeviceNotFoundException {
         if(rentRepository.findAll().stream().anyMatch(rent -> rent.getVirtualDeviceId().equals(id))) {
@@ -126,6 +122,7 @@ public class VirtualDeviceManager {
         virtualDeviceRepository.deleteById(id);
 
     }
+
 
     public List<VirtualDevice> findAllVirtualDevices() {
         return virtualDeviceRepository.findAll();

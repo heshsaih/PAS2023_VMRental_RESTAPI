@@ -8,4 +8,5 @@ import java.util.ArrayList;
 
 public interface RentRepository extends MongoRepository<Rent,String> {
     ArrayList<Rent> findAllByVirtualDeviceId(String virtualDeviceId);
+    ArrayList<Rent> findAllByUserId(String userId);
 }

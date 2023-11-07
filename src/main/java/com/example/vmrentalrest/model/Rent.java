@@ -13,7 +13,7 @@ public class Rent {
     private String rentId;
     private LocalDateTime startLocalDateTime;
     private LocalDateTime endLocalDateTime;
-    private String clientId;
+    private String userId;
     private String virtualDeviceId;
 
 

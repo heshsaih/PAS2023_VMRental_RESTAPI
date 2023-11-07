@@ -14,7 +14,6 @@ import com.example.vmrentalrest.model.Rent;
 import com.example.vmrentalrest.repositories.UserRepository;
 import com.example.vmrentalrest.repositories.RentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,14 +34,15 @@ public class RentManager {
         if(rent == null) {
             throw new InvalidRentException();
         }
-        if(rent.getClientId() == null
+        if(rent.getUserId() == null
                 || rent.getVirtualDeviceId() == null
                 || rent.getStartLocalDateTime() == null
                 || rent.getEndLocalDateTime() == null
                 || rent.getStartLocalDateTime().isAfter(rent.getStartLocalDateTime())) {
             throw new InvalidRentException();
         }
-        Client client = (Client) userManager.findUserById(rent.getClientId());
+        Client client = (Client) userManager.findUserById(rent.getUserId());
+        userManager.removeFromActiveRents(client.getId());
         if(!client.isActive()) {
             throw new UserIsNotActiveException();
         }
@@ -53,7 +53,7 @@ public class RentManager {
             Rent newRent = new Rent();
             newRent.setStartLocalDateTime(rent.getStartLocalDateTime());
             newRent.setEndLocalDateTime(rent.getEndLocalDateTime());
-            newRent.setClientId(client.getId());
+            newRent.setUserId(client.getId());
             newRent.setVirtualDeviceId(rent.getVirtualDeviceId());
             rentRepository.save(newRent);
             userManager.addRentToCurrentRents(client, newRent);
@@ -67,7 +67,7 @@ public class RentManager {
         if(LocalDateTime.now().isAfter(rent.getStartLocalDateTime())) {
             throw new CantDeleteRentException();
         }
-        Client client = (Client) userManager.findUserById(rent.getClientId());
+        Client client = (Client) userManager.findUserById(rent.getUserId());
         client.getActiveRents().remove(rent.getRentId());
         userRepository.save(client);
         rentRepository.deleteById(id);
@@ -80,12 +80,12 @@ public class RentManager {
         return rentRepository.findById(id).orElseThrow(RentNotFoundException::new);
     }
 
-    public Rent updateRent(String rentId,Rent rent) throws RentNotFoundException, CantUpdateRentException, InvalidRentException, InvalidDatesException {
+    public void updateRent(String rentId,Rent rent) throws RentNotFoundException, CantUpdateRentException, InvalidRentException, InvalidDatesException {
         if(rent == null) {
             throw new InvalidRentException();
         }
         var value = rentRepository.findById(rentId).orElseThrow(RentNotFoundException::new);
-            if(rent.getClientId() != null) value.setClientId(rent.getClientId());
+            if(rent.getUserId() != null) value.setUserId(rent.getUserId());
             if(rent.getVirtualDeviceId() != null) value.setVirtualDeviceId(rent.getVirtualDeviceId());
             if(rent.getStartLocalDateTime() != null) value.setStartLocalDateTime(rent.getStartLocalDateTime());
             if(rent.getEndLocalDateTime() != null) value.setEndLocalDateTime(rent.getEndLocalDateTime());
@@ -96,7 +96,12 @@ public class RentManager {
                 throw new CantUpdateRentException();
             }
             rentRepository.save(value);
-            return value;
+    }
+    public List<Rent> findByVirtualDeviceId(String id) {
+        return rentRepository.findAllByVirtualDeviceId(id);
+    }
+    public List<Rent> findByUserId(String id) {
+        return rentRepository.findAllByUserId(id);
     }
     private boolean willVirtualDeviceBeRented(Rent rent1) {
         return rentRepository.findAllByVirtualDeviceId(rent1.getVirtualDeviceId())

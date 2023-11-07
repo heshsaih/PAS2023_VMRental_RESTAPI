@@ -123,7 +123,7 @@ public class UserManager {
       });
       return (Client) userOpt.orElseThrow(UserNotFoundException::new);
     }
-    public User updateUser(String id, User user) throws UserNotFoundException {
+    public void updateUser(String id, User user) throws UserNotFoundException {
         var userOpt = userRepository.findById(id);
         userOpt.ifPresent(value -> {
             if(user.getFirstName() != null
@@ -150,27 +150,20 @@ public class UserManager {
             }
             userRepository.save(value);
         });
-        return userOpt.orElseThrow(UserNotFoundException::new);
     }
-    public User setActive(String id) throws UserNotFoundException {
-        var userOpt = userRepository.findById(id);
-        userOpt.ifPresent(value -> {
+    public void setActive(String id) throws UserNotFoundException {
+        var value = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
             if(!value.isActive()) {
                 value.setActive(true);
                 userRepository.save(value);
             }
-        });
-        return userOpt.orElseThrow(UserNotFoundException::new);
     }
-    public User setInactive(String id) throws UserNotFoundException {
-        var userOpt = userRepository.findById(id);
-        userOpt.ifPresent(value -> {
+    public void setInactive(String id) throws UserNotFoundException {
+        var value = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
             if(value.isActive()) {
                 value.setActive(false);
                 userRepository.save(value);
             }
-        });
-        return userOpt.orElseThrow(UserNotFoundException::new);
     }
     public User findByUsername(String username) throws UserNotFoundException {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
