@@ -88,14 +88,16 @@ public class UserManager {
     }
     public void removeFromActiveRents(String clientId) throws UserNotFoundException {
         userRepository.findById(clientId).ifPresent(client -> {
-            ((Client) client).setActiveRents(((Client) client).getActiveRents()
-                    .stream()
-                    .filter(value -> rentRepository
-                            .findById(value).get()
-                            .getEndLocalDateTime()
-                            .isBefore(LocalDateTime.now()))
-                    .collect(Collectors.toList()));
-            userRepository.save(client);
+            if(client instanceof Client) {
+                ((Client) client).setActiveRents(((Client) client).getActiveRents()
+                        .stream()
+                        .filter(value -> rentRepository
+                                .findById(value).get()
+                                .getEndLocalDateTime()
+                                .isBefore(LocalDateTime.now()))
+                        .collect(Collectors.toList()));
+                userRepository.save(client);
+            }
         });
     }
     private void setUserProperties(User nonAbstractUser,User user) throws DuplicateRecordException {
