@@ -2,12 +2,12 @@ package com.example.vmrentalrest.restApiTests;
 
 import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.endpoints.RentEndpoint;
-import com.example.vmrentalrest.endpoints.UserEndpoint;
 import com.example.vmrentalrest.managers.RentManager;
 import com.example.vmrentalrest.managers.UserManager;
 import com.example.vmrentalrest.managers.VirtualDeviceManager;
 import com.example.vmrentalrest.model.Rent;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -122,8 +124,112 @@ public class rentEndpointTest {
     @Transactional
     void createRentTest() throws Exception {
         dbManagementTools.createData();
+        int rentSizeBuffer = rentManager.findAllRents().size();
         Rent rent = new Rent();
-       // var users = userManager
+        var users = userManager.findAllUsers();
+        var virtualDevices = virtualDeviceManager.findAllVirtualDevices();
+        rent.setUserId(users.get(2).getId());
+        rent.setVirtualDeviceId(virtualDevices.get(2).getId());
+        rent.setStartLocalDateTime(LocalDateTime.now());
+        rent.setEndLocalDateTime(LocalDateTime.now().plusDays(1));
+        mockMvc.perform(post("/rents")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(rent)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(rent.getUserId()))
+                .andExpect(jsonPath("$.virtualDeviceId").value(rent.getVirtualDeviceId()));
+        Rent rent2 = new Rent();
+        rent2.setUserId(users.get(0).getId());
+        rent2.setVirtualDeviceId(virtualDevices.get(0).getId());
+        rent2.setStartLocalDateTime(LocalDateTime.now().minusWeeks(2));
+        rent2.setEndLocalDateTime(LocalDateTime.now().plusWeeks(3));
+        mockMvc.perform(post("/rents")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(rent2)))
+                .andExpect(status().isBadRequest());
+        Rent rent3 = new Rent();
+        rent3.setUserId(users.get(0).getId());
+        rent3.setVirtualDeviceId(virtualDevices.get(0).getId());
+        rent3.setStartLocalDateTime(LocalDateTime.now().plusWeeks(2));
+        rent3.setEndLocalDateTime(LocalDateTime.now().plusWeeks(1));
+        mockMvc.perform(post("/rents")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(rent3)))
+                .andExpect(status().isBadRequest());
+        Rent rent4 = new Rent();
+        rent4.setUserId("NonExistent");
+        rent4.setVirtualDeviceId(virtualDevices.get(0).getId());
+        rent4.setStartLocalDateTime(LocalDateTime.now().plusWeeks(2));
+        rent4.setEndLocalDateTime(LocalDateTime.now().plusWeeks(3));
+        mockMvc.perform(post("/rents")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(rent4)))
+                .andExpect(status().isNotFound());
+        Rent rent5 = new Rent();
+        rent5.setUserId(users.get(2).getId());
+        rent5.setVirtualDeviceId("NonExistent");
+        rent5.setStartLocalDateTime(LocalDateTime.now().plusWeeks(2));
+        rent5.setEndLocalDateTime(LocalDateTime.now().plusWeeks(3));
+        mockMvc.perform(post("/rents")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(rent5)))
+                .andExpect(status().isNotFound());
+        Assertions.assertTrue(rentSizeBuffer + 1== rentManager.findAllRents().size());
+    }
+    @Test
+    @Transactional
+    void updateRentTest() throws Exception {
+        dbManagementTools.createData();
+        Rent rent = rentManager.findAllRents().get(0);
+        rent.setStartLocalDateTime(LocalDateTime.now().plusWeeks(2));
+        rent.setEndLocalDateTime(LocalDateTime.now().plusWeeks(3));
+        mockMvc.perform(put("/rents/" + rent.getRentId())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(rent)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(rent.getUserId()))
+                .andExpect(jsonPath("$.virtualDeviceId").value(rent.getVirtualDeviceId()));
+        mockMvc.perform(put("/rents/" + rent.getRentId())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(null)))
+                .andExpect(status().isBadRequest());
+        Rent rent2 = rentManager.findAllRents().get(0);
+        rent2.setStartLocalDateTime(LocalDateTime.now().plusWeeks(2));
+        rent2.setEndLocalDateTime(LocalDateTime.now().plusWeeks(1));
+        mockMvc.perform(put("/rents/" + rent2.getRentId())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(rent2)))
+                .andExpect(status().isBadRequest());
+        Rent rent3 = rentManager.findAllRents().get(0);
+        rent3.setStartLocalDateTime(LocalDateTime.now().minusWeeks(2));
+        rent3.setEndLocalDateTime(LocalDateTime.now().plusWeeks(3));
+        mockMvc.perform(put("/rents/" + rent3.getRentId())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(rent3)))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(put("/rents/" + "NonExistent")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(rent3)))
+                .andExpect(status().isNotFound());
+    }
+    @Test
+    @Transactional
+    void deleteRentTest() throws Exception {
+        dbManagementTools.createData();
+        int rentSizeBuffer = rentManager.findAllRents().size();
+        Rent rent = rentManager.findAllRents().get(0);
+        Rent rent2 = rentManager.findAllRents().get(1);
+        mockMvc.perform(delete("/rents/" + rent.getRentId()))
+                .andExpect(status().isOk());
+        Assertions.assertTrue(rentSizeBuffer - 1 == rentManager.findAllRents().size());
+        mockMvc.perform(delete("/rents/" + "NonExistent"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/rents/" + rent.getRentId()))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/rents/" + rent2.getRentId()))
+                .andExpect(status().isBadRequest());
+        Assertions.assertTrue(rentSizeBuffer - 1 == rentManager.findAllRents().size());
+
     }
 
 }

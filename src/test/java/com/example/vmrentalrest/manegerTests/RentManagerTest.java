@@ -10,13 +10,7 @@ import com.example.vmrentalrest.managers.RentManager;
 import com.example.vmrentalrest.managers.VirtualDeviceManager;
 import com.example.vmrentalrest.model.Rent;
 import com.example.vmrentalrest.model.enums.*;
-import com.example.vmrentalrest.model.users.Address;
-import com.example.vmrentalrest.model.users.Administrator;
 import com.example.vmrentalrest.model.users.Client;
-import com.example.vmrentalrest.model.users.ResourceManager;
-import com.example.vmrentalrest.model.virtualdevices.VirtualDatabaseServer;
-import com.example.vmrentalrest.model.virtualdevices.VirtualMachine;
-import com.example.vmrentalrest.model.virtualdevices.VirtualPhone;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

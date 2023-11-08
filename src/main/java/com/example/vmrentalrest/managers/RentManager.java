@@ -12,6 +12,7 @@ import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.UserNotFound
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.VirtualDeviceNotFoundException;
 import com.example.vmrentalrest.model.users.Client;
 import com.example.vmrentalrest.model.Rent;
+import com.example.vmrentalrest.model.virtualdevices.VirtualDevice;
 import com.example.vmrentalrest.repositories.UserRepository;
 import com.example.vmrentalrest.repositories.RentRepository;
 import com.example.vmrentalrest.repositories.VirtualDeviceRepository;
@@ -45,6 +46,7 @@ public class RentManager {
             throw new InvalidRentException();
         }
         Client client = (Client) userManager.findUserById(rent.getUserId());
+        VirtualDevice virtualDevice = virtualDeviceRepository.findById(rent.getVirtualDeviceId()).orElseThrow(VirtualDeviceNotFoundException::new);
         userManager.removeFromActiveRents(client.getId());
         if(!client.isActive()) {
             throw new UserIsNotActiveException();
@@ -57,7 +59,7 @@ public class RentManager {
             newRent.setStartLocalDateTime(rent.getStartLocalDateTime());
             newRent.setEndLocalDateTime(rent.getEndLocalDateTime());
             newRent.setUserId(client.getId());
-            newRent.setVirtualDeviceId(rent.getVirtualDeviceId());
+            newRent.setVirtualDeviceId(virtualDevice.getId());
             rentRepository.save(newRent);
             userManager.addRentToCurrentRents(client, newRent);
             return newRent;
