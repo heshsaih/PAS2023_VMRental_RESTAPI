@@ -1,5 +1,6 @@
-package com.example.vmrentalrest;
+package com.example.vmrentalrest.manegerTests;
 
+import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DuplicateRecordException;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidUserException;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.UnknownUserTypeException;
@@ -8,54 +9,24 @@ import com.example.vmrentalrest.managers.UserManager;
 import com.example.vmrentalrest.model.enums.ClientType;
 import com.example.vmrentalrest.model.enums.UserType;
 import com.example.vmrentalrest.model.users.Address;
-import com.example.vmrentalrest.model.users.Administrator;
 import com.example.vmrentalrest.model.users.Client;
-import com.example.vmrentalrest.model.users.ResourceManager;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class UserManagerTest {
     @Autowired
     UserManager userManager;
+    @Autowired
+    DBManagementTools dbManagementTools;
 
     private void addUsers() throws DuplicateRecordException, UnknownUserTypeException, InvalidUserException, UserNotFoundException {
-        createMPClient();
-        Client client2 = new Client();
-        Address address2 = new Address();
-        address2.setCity("Warszawa");
-        address2.setStreet("Nowy Swiat");
-        address2.setHouseNumber("7");
-        client2.setUsername("małyszo2");
-        client2.setFirstName("Adam");
-        client2.setLastName("Małysz");
-        client2.setAddress(address2);
-        client2.setClientType(ClientType.BRONZE);
-        userManager.createUser(client2, UserType.CLIENT);
-        Administrator administrator = new Administrator();
-        Address address3 = new Address();
-        address3.setCity("Płock");
-        address3.setStreet("Kościuszki");
-        address3.setHouseNumber("1");
-        administrator.setUsername("admin");
-        administrator.setFirstName("Jan");
-        administrator.setLastName("Kowalski");
-        administrator.setAddress(address3);
-        userManager.createUser(administrator, UserType.ADMINISTRATOR);
-        ResourceManager resourceManager = new ResourceManager();
-        Address address4 = new Address();
-        address4.setCity("Gdynia");
-        address4.setStreet("Mickiewicza");
-        address4.setHouseNumber("2");
-        resourceManager.setUsername("resmanager");
-        resourceManager.setFirstName("Andrzej");
-        resourceManager.setLastName("Nowak");
-        resourceManager.setAddress(address4);
-        userManager.createUser(resourceManager, UserType.RESOURCE_MANAGER);
-        userManager.findAllUsers().get(3).setActive(false);
+        dbManagementTools.createData();
     }
 
     private void createMPClient() throws DuplicateRecordException, UnknownUserTypeException, InvalidUserException, UserNotFoundException {
@@ -109,7 +80,7 @@ public class UserManagerTest {
     void addUserTest() throws DuplicateRecordException, UnknownUserTypeException, InvalidUserException, UserNotFoundException {
         int buffer = userManager.findAllUsers().size();
         addUsers();
-        Assertions.assertThat(userManager.findAllUsers().size() == buffer + 4).isTrue();
+        Assertions.assertThat(userManager.findAllUsers().size() == buffer + 5).isTrue();
     }
 
 
@@ -134,7 +105,7 @@ public class UserManagerTest {
         client.setLastName("Małysz2");
         client.setAddress(address);
         client.setClientType(ClientType.SILVER);
-        userManager.updateUser(idBuffer, client);
+        userManager.updateUser(idBuffer, client, UserType.CLIENT);
         Assertions.assertThat(userManager.findUserById(idBuffer).getFirstName().equals("Adam")).isTrue();
         Assertions.assertThat(userManager.findUserById(idBuffer).getLastName().equals("Małysz2")).isTrue();
         Assertions.assertThat(userManager.findUserById(idBuffer).getAddress().getCity().equals("Warszawa")).isTrue();
@@ -171,7 +142,7 @@ public class UserManagerTest {
         Assertions.assertThat(userManager.findByUsername("Pudzianator").getAddress().getCity().equals("Lodz")).isTrue();
         Assertions.assertThat(userManager.findByUsername("Pudzianator").getAddress().getStreet().equals("Aleje Politechniki")).isTrue();
         Assertions.assertThat(userManager.findByUsername("Pudzianator").getAddress().getHouseNumber().equals("4/7")).isTrue();
-        Assertions.assertThat(((Client) userManager.findByUsername("Pudzianator")).getClientType().equals(ClientType.GOLD)).isTrue();
+        Assertions.assertThat(((Client) userManager.findByUsername("Pudzianator")).getClientType().equals(ClientType.BRONZE)).isTrue();
         try{
             userManager.findByUsername("Pudzianator2");
             Assertions.fail("Exception was not caught");

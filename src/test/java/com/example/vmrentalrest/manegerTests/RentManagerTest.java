@@ -1,5 +1,6 @@
-package com.example.vmrentalrest;
+package com.example.vmrentalrest.manegerTests;
 
+import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.*;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.*;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.RentNotFoundException;
@@ -18,15 +19,20 @@ import com.example.vmrentalrest.model.virtualdevices.VirtualMachine;
 import com.example.vmrentalrest.model.virtualdevices.VirtualPhone;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @SpringBootTest
-class RentMenagerTest {
+@ActiveProfiles("test")
+class RentManagerTest {
+    @Autowired
+    DBManagementTools dbManagementTools;
     @Autowired
     UserManager userManager;
     @Autowired
@@ -39,90 +45,7 @@ class RentMenagerTest {
     void contextLoads() {
     }
     private void createTestingData() throws DuplicateRecordException, DeviceAlreadyRentedException, ClientHasTooManyRentsException, InvalidDatesException, UnknownUserTypeException, InvalidUserException, InvalidVirtualDeviceException, UserIsNotActiveException, UserNotFoundException, InvalidRentException {
-        Client client1 = new Client();
-        Address address1 = new Address();
-        address1.setCity("Lodz");
-        address1.setStreet("Aleje Politechniki");
-        address1.setHouseNumber("4/7");
-        client1.setUsername("Pudzianator");
-        client1.setFirstName("Mariusz");
-        client1.setLastName("Pudzianowski");
-        client1.setAddress(address1);
-        client1.setClientType(ClientType.BRONZE);
-        userManager.createUser(client1, UserType.CLIENT);
-        Client client2 = new Client();
-        Address address2 = new Address();
-        address2.setCity("Warszawa");
-        address2.setStreet("Nowy Swiat");
-        address2.setHouseNumber("7");
-        client2.setUsername("małyszo2");
-        client2.setFirstName("Adam");
-        client2.setLastName("Małysz");
-        client2.setAddress(address2);
-        client2.setClientType(ClientType.BRONZE);
-        userManager.createUser(client2, UserType.CLIENT);
-        Client client3 = new Client();
-        Address address5 = new Address();
-        address5.setCity("Pabianice");
-        address5.setStreet("Jana Pawla 2");
-        address5.setHouseNumber("21");
-        client3.setUsername("kamil");
-        client3.setFirstName("Kamil");
-        client3.setLastName("Stoch");
-        client3.setAddress(address5);
-        client3.setClientType(ClientType.GOLD);
-        userManager.createUser(client3, UserType.CLIENT);
-        Administrator administrator = new Administrator();
-        Address address3 = new Address();
-        address3.setCity("Płock");
-        address3.setStreet("Kościuszki");
-        address3.setHouseNumber("1");
-        administrator.setUsername("admin");
-        administrator.setFirstName("Jan");
-        administrator.setLastName("Kowalski");
-        administrator.setAddress(address3);
-        userManager.createUser(administrator, UserType.ADMINISTRATOR);
-        ResourceManager resourceManager = new ResourceManager();
-        Address address4 = new Address();
-        address4.setCity("Gdynia");
-        address4.setStreet("Mickiewicza");
-        address4.setHouseNumber("2");
-        resourceManager.setUsername("resmanager");
-        resourceManager.setFirstName("Andrzej");
-        resourceManager.setLastName("Nowak");
-        resourceManager.setAddress(address4);
-        userManager.createUser(resourceManager, UserType.RESOURCE_MANAGER);
-        userManager.findAllUsers().get(3).setActive(false);
-        VirtualDatabaseServer virtualDatabaseServer = new VirtualDatabaseServer();
-        virtualDatabaseServer.setCpuCores(16);
-        virtualDatabaseServer.setRam(64);
-        virtualDatabaseServer.setStorageSize(2048);
-        virtualDatabaseServer.setDatabase(DatabaseType.MONGODB);
-        virtualDeviceManager.createVirtualDevice(virtualDatabaseServer, VirtualDeviceType.VIRTUAL_DATABASE_SERVER);
-        VirtualMachine virtualMachine = new VirtualMachine();
-        virtualMachine.setCpuCores(8);
-        virtualMachine.setRam(32);
-        virtualMachine.setStorageSize(1024);
-        virtualMachine.setOperatingSystemType(OperatingSystemType.FEDORA);
-        virtualDeviceManager.createVirtualDevice(virtualMachine, VirtualDeviceType.VIRTUAL_MACHINE);
-        VirtualPhone virtualPhone = new VirtualPhone();
-        virtualPhone.setCpuCores(4);
-        virtualPhone.setRam(16);
-        virtualPhone.setStorageSize(512);
-        virtualPhone.setPhoneNumber(123456789);
-        virtualDeviceManager.createVirtualDevice(virtualPhone, VirtualDeviceType.VIRTUAL_PHONE);
-        Rent rent1 = new Rent();
-        rent1.setUserId(userManager.findAllUsers().get(0).getId());
-        rent1.setVirtualDeviceId(virtualDeviceManager.findAllVirtualDevices().get(0).getId());
-        rent1.setStartLocalDateTime(LocalDateTime.now().plusDays(1));
-        rent1.setEndLocalDateTime(LocalDateTime.now().plusWeeks(2L));
-        rentManager.createRent(rent1);
-        Rent rent2 = new Rent();
-        rent2.setUserId(userManager.findAllUsers().get(1).getId());
-        rent2.setVirtualDeviceId(virtualDeviceManager.findAllVirtualDevices().get(0).getId());
-        rent2.setStartLocalDateTime(LocalDateTime.now().minusDays(5));
-        rent2.setEndLocalDateTime(LocalDateTime.now().minusDays(1));
-        rentManager.createRent(rent2);
+       dbManagementTools.createData();
     }
 
     @Test
@@ -154,7 +77,7 @@ class RentMenagerTest {
         rent.setVirtualDeviceId(virtualDeviceManager.findAllVirtualDevices().get(0).getId());
         Client client = (Client) userManager.findUserById(rent.getUserId());
         client.setClientType(ClientType.GOLD);
-        userManager.updateUser(client.getId(), client);
+        userManager.updateUser(client.getId(), client,UserType.CLIENT);
         userManager.setActive(userManager.findAllUsers().get(0).getId());
         Assertions.assertThatThrownBy(() -> rentManager.createRent(rent)).isInstanceOf(DeviceAlreadyRentedException.class);
     }

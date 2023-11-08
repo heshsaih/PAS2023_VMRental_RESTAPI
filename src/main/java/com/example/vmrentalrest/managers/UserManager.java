@@ -94,7 +94,7 @@ public class UserManager {
                         .filter(value -> rentRepository
                                 .findById(value).get()
                                 .getEndLocalDateTime()
-                                .isBefore(LocalDateTime.now()))
+                                .isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList()));
                 userRepository.save(client);
             }
@@ -125,33 +125,35 @@ public class UserManager {
       });
       return (Client) userOpt.orElseThrow(UserNotFoundException::new);
     }
-    public void updateUser(String id, User user) throws UserNotFoundException {
-        var userOpt = userRepository.findById(id);
-        userOpt.ifPresent(value -> {
-            if(user.getFirstName() != null
-                    && StringUtils.hasText(user.getFirstName())){
-                value.setFirstName(user.getFirstName());
-            }
-            if(user.getLastName() != null
-                    && StringUtils.hasText(user.getLastName())){
-                value.setLastName(user.getLastName());
-            }
-            if(user.getAddress() != null
-                    && user.getAddress().getCity() != null
-                    && StringUtils.hasText(user.getAddress().getCity())
-                    && user.getAddress().getStreet() != null
-                    && StringUtils.hasText(user.getAddress().getStreet())
-                    && user.getAddress().getHouseNumber() != null
-                    && StringUtils.hasText(user.getAddress().getHouseNumber())) {
-                value.setAddress(user.getAddress());
-            }
-            if(value instanceof Client
-                    && ((Client) user).getClientType() != null
-                    && !((Client) user).getClientType().equals(((Client) value).getClientType())) {
-                ((Client) value).setClientType(((Client) user).getClientType());
-            }
-            userRepository.save(value);
-        });
+    public User updateUser(String id, User user,UserType userType) throws UserNotFoundException {
+        if(userType == null) {
+            throw new UnknownUserTypeException();
+        }
+        var userOpt = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        if(user.getFirstName() != null
+                && StringUtils.hasText(user.getFirstName())){
+            userOpt.setFirstName(user.getFirstName());
+        }
+        if(user.getLastName() != null
+                && StringUtils.hasText(user.getLastName())){
+            userOpt.setLastName(user.getLastName());
+        }
+        if(user.getAddress() != null
+                && user.getAddress().getCity() != null
+                && StringUtils.hasText(user.getAddress().getCity())
+                && user.getAddress().getStreet() != null
+                && StringUtils.hasText(user.getAddress().getStreet())
+                && user.getAddress().getHouseNumber() != null
+                && StringUtils.hasText(user.getAddress().getHouseNumber())) {
+            userOpt.setAddress(user.getAddress());
+        }
+        if(UserType.CLIENT.equals(userType)
+                && ((Client) user).getClientType() != null
+                && !((Client) user).getClientType().equals(((Client) userOpt).getClientType())) {
+            ((Client) userOpt).setClientType(((Client) user).getClientType());
+        }
+        userRepository.save(userOpt);
+        return userOpt;
     }
     public void setActive(String id) throws UserNotFoundException {
         var value = userRepository.findById(id).orElseThrow(UserNotFoundException::new);

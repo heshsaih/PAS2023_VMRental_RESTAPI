@@ -8,5 +8,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString(callSuper = true)
 @Document
 public class VirtualDatabaseServer extends VirtualDevice {
-    private DatabaseType database;
+    private DatabaseType databaseType;
 }

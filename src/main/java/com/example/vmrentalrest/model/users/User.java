@@ -10,7 +10,8 @@ public abstract class User {
     private String id;
     private String username;
     private String firstName;
-    private boolean isActive;
+    private boolean active;
     private String lastName;
     private Address address;
+
 }

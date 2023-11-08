@@ -1,5 +1,6 @@
 package com.example.vmrentalrest.endpoints;
 
+import com.example.vmrentalrest.dto.UserDTO;
 import com.example.vmrentalrest.managers.UserManager;
 import com.example.vmrentalrest.model.enums.UserType;
 import com.example.vmrentalrest.model.users.User;
@@ -24,7 +25,7 @@ public class UserEndpoint {
             userManager.removeFromActiveRents(id);
             return userManager.findUserById(id);
     }
-    @GetMapping("getbyusername")
+    @GetMapping("/getbyusername")
     public User getUserByUsername(@RequestParam String username) {
         return userManager.findByUsername(username);
     }
@@ -33,19 +34,19 @@ public class UserEndpoint {
         return userManager.findAllByUsernameContainsIgnoreCase(username);
     }
     @PostMapping
-    public User createUser(@RequestBody User user, @RequestParam UserType userType) {
-        return userManager.createUser(user,userType);
+    public User createUser(@RequestBody UserDTO userDTO) {
+        return userManager.createUser(userDTO.convertToUser(),userDTO.getUserType());
     }
     @PutMapping("/{id}")
-    public void updateUser(@PathVariable String id, @RequestBody User user) {
-        userManager.updateUser(id,user);
+    public User updateUser(@PathVariable String id, @RequestBody UserDTO userDTO) {
+        return userManager.updateUser(id,userDTO.convertToUser(),userDTO.getUserType());
     }
-    @PostMapping("/{id}/isactive")
-    public void changeUserActivity(@PathVariable String id, @RequestParam boolean setStateTo) {
-        if (setStateTo) {
-            userManager.setActive(id);
-        } else {
-            userManager.setInactive(id);
-        }
+    @PatchMapping("/{id}/activate")
+    public void activateUser(@PathVariable String id) {
+        userManager.setActive(id);
+    }
+    @PatchMapping("/{id}/deactivate")
+    public void deactivateUser(@PathVariable String id) {
+        userManager.setInactive(id);
     }
 }

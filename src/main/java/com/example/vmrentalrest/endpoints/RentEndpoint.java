@@ -21,12 +21,12 @@ public class RentEndpoint {
     public Rent getRentById(@PathVariable String id) {
         return rentManager.findRentById(id);
     }
-    @GetMapping("/getbyvirtualdeviceid")
-    public List<Rent> getRentsByVirtualDeviceId(@RequestParam String virtualDeviceId) {
+    @GetMapping("/getbyvirtualdeviceid/{virtualDeviceId}")
+    public List<Rent> getRentsByVirtualDeviceId(@PathVariable String virtualDeviceId) {
         return rentManager.findByVirtualDeviceId(virtualDeviceId);
     }
-    @GetMapping("/getbyuserid")
-    public List<Rent> getRentsByUserId(@RequestParam String userId) {
+    @GetMapping("/getbyuserid/{userId}")
+    public List<Rent> getRentsByUserId(@PathVariable String userId) {
         return rentManager.findByUserId(userId);
     }
     @PostMapping
@@ -35,8 +35,8 @@ public class RentEndpoint {
     }
 
     @PutMapping("/{id}")
-    public void updateRent(@PathVariable String id, @RequestBody Rent rent) {
-        rentManager.updateRent(id,rent);
+    public Rent updateRent(@PathVariable String id, @RequestBody Rent rent) {
+        return rentManager.updateRent(id,rent);
     }
     @DeleteMapping("/{id}")
     public void deleteRent(@PathVariable String id) {

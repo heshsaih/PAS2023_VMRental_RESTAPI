@@ -1,5 +1,6 @@
-package com.example.vmrentalrest;
+package com.example.vmrentalrest.manegerTests;
 
+import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DeviceHasAllocationException;
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidVirtualDeviceException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.VirtualDeviceNotFoundException;
@@ -15,32 +16,18 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class VirtualDeviceManagerTest {
     @Autowired
     VirtualDeviceManager virtualDeviceManager;
-
+    @Autowired
+    DBManagementTools dbManagementTools;
     private void addVirtualDevices() throws InvalidVirtualDeviceException {
-        VirtualDatabaseServer virtualDatabaseServer = new VirtualDatabaseServer();
-        virtualDatabaseServer.setCpuCores(16);
-        virtualDatabaseServer.setRam(64);
-        virtualDatabaseServer.setStorageSize(2048);
-        virtualDatabaseServer.setDatabase(DatabaseType.MONGODB);
-        virtualDeviceManager.createVirtualDevice(virtualDatabaseServer, VirtualDeviceType.VIRTUAL_DATABASE_SERVER);
-        VirtualMachine virtualMachine = new VirtualMachine();
-        virtualMachine.setCpuCores(8);
-        virtualMachine.setRam(32);
-        virtualMachine.setStorageSize(1024);
-        virtualMachine.setOperatingSystemType(OperatingSystemType.FEDORA);
-        virtualDeviceManager.createVirtualDevice(virtualMachine, VirtualDeviceType.VIRTUAL_MACHINE);
-        VirtualPhone virtualPhone = new VirtualPhone();
-        virtualPhone.setCpuCores(4);
-        virtualPhone.setRam(16);
-        virtualPhone.setStorageSize(512);
-        virtualPhone.setPhoneNumber(123456789);
-        virtualDeviceManager.createVirtualDevice(virtualPhone, VirtualDeviceType.VIRTUAL_PHONE);
+        dbManagementTools.createData();
     }
     @Test
     @Transactional
@@ -50,7 +37,7 @@ public class VirtualDeviceManagerTest {
         VirtualDatabaseServer virtualDatabaseServer = new VirtualDatabaseServer();
         virtualDatabaseServer.setCpuCores(16);
         virtualDatabaseServer.setRam(64);
-        virtualDatabaseServer.setDatabase(DatabaseType.MONGODB);
+        virtualDatabaseServer.setDatabaseType(DatabaseType.MONGODB);
         Assertions.assertThatThrownBy(() -> virtualDeviceManager.createVirtualDevice(virtualDatabaseServer, VirtualDeviceType.VIRTUAL_DATABASE_SERVER))
                 .isInstanceOf(InvalidVirtualDeviceException.class);
         VirtualMachine virtualMachine = new VirtualMachine();
@@ -81,10 +68,13 @@ public class VirtualDeviceManagerTest {
         addVirtualDevices();
         int virtualDeviceBuffer = virtualDeviceManager.findAllVirtualDevices().size();
         String bufferedId = virtualDeviceManager.findAllVirtualDevices().get(0).getId();
-        virtualDeviceManager.deleteVirtualDevice(bufferedId);
-        Assertions.assertThat(virtualDeviceManager.findAllVirtualDevices().size() == virtualDeviceBuffer - 1).isTrue();
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.findVirtualDeviceById(bufferedId)).isInstanceOf(VirtualDeviceNotFoundException.class);
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.deleteVirtualDevice(bufferedId)).isInstanceOf(VirtualDeviceNotFoundException.class);
+        Assertions.assertThatThrownBy(() -> virtualDeviceManager.deleteVirtualDevice(bufferedId)).isInstanceOf(DeviceHasAllocationException.class);
+        Assertions.assertThat(virtualDeviceManager.findAllVirtualDevices().size() == virtualDeviceBuffer).isTrue();
+        int virtualDeviceBuffer2 = virtualDeviceManager.findAllVirtualDevices().size();
+        String bufferedId2 = virtualDeviceManager.findAllVirtualDevices().get(2).getId();
+        virtualDeviceManager.deleteVirtualDevice(bufferedId2);
+        Assertions.assertThat(virtualDeviceManager.findAllVirtualDevices().size() == virtualDeviceBuffer2 - 1).isTrue();
+        Assertions.assertThatThrownBy(() -> virtualDeviceManager.findVirtualDeviceById(bufferedId2)).isInstanceOf(VirtualDeviceNotFoundException.class);
     }
     @Test
     @Transactional
@@ -102,14 +92,14 @@ public class VirtualDeviceManagerTest {
         virtualDatabaseServer.setCpuCores(24);
         virtualDatabaseServer.setRam(32);
         virtualDatabaseServer.setStorageSize(4096);
-        virtualDatabaseServer.setDatabase(DatabaseType.ORACLE);
+        virtualDatabaseServer.setDatabaseType(DatabaseType.ORACLE);
         var bufferedId1 = virtualDeviceManager.findAllVirtualDevices().get(0).getId();
         virtualDeviceManager.updateVirtualDevice(bufferedId1,virtualDatabaseServer);
         VirtualDatabaseServer virtualDatabaseServer1 = (VirtualDatabaseServer) virtualDeviceManager.findAllVirtualDevices().get(0);
         Assertions.assertThat(virtualDatabaseServer1.getCpuCores() == 24).isTrue();
         Assertions.assertThat(virtualDatabaseServer1.getRam() == 32).isTrue();
         Assertions.assertThat(virtualDatabaseServer1.getStorageSize() == 4096).isTrue();
-        Assertions.assertThat((virtualDatabaseServer1.getDatabase() == DatabaseType.ORACLE)).isTrue();
+        Assertions.assertThat((virtualDatabaseServer1.getDatabaseType() == DatabaseType.ORACLE)).isTrue();
         VirtualMachine virtualMachine = new VirtualMachine();
         virtualMachine.setCpuCores(16);
         virtualMachine.setStorageSize(2048);

@@ -34,7 +34,7 @@ public class VirtualDeviceManager {
             case VIRTUAL_DATABASE_SERVER -> {
                 VirtualDatabaseServer virtualDatabaseServer = new VirtualDatabaseServer();
                 setVirtualDeviceProperties(virtualDatabaseServer,virtualDevice);
-                virtualDatabaseServer.setDatabase(((VirtualDatabaseServer) virtualDevice).getDatabase());
+                virtualDatabaseServer.setDatabaseType(((VirtualDatabaseServer) virtualDevice).getDatabaseType());
                 virtualDeviceRepository.save(virtualDatabaseServer);
                 return virtualDatabaseServer;
             }
@@ -63,7 +63,7 @@ public class VirtualDeviceManager {
             }
             switch(virtualDeviceType) {
                 case VIRTUAL_DATABASE_SERVER -> {
-                    if(((VirtualDatabaseServer) virtualDevice).getDatabase() == null) {
+                    if(((VirtualDatabaseServer) virtualDevice).getDatabaseType() == null) {
                         return false;
                     }
                 }
@@ -94,15 +94,15 @@ public class VirtualDeviceManager {
             throw new InvalidVirtualDeviceException();
         }
     }
-    public void updateVirtualDevice(String id,VirtualDevice virtualDevice) throws VirtualDeviceNotFoundException {
+    public VirtualDevice updateVirtualDevice(String id,VirtualDevice virtualDevice) throws VirtualDeviceNotFoundException {
         var value = virtualDeviceRepository.findById(id).orElseThrow(VirtualDeviceNotFoundException::new);
         if(virtualDevice.getCpuCores() > 0) value.setCpuCores(virtualDevice.getCpuCores());
         if(virtualDevice.getRam() > 0) value.setRam(virtualDevice.getRam());
         if(virtualDevice.getStorageSize() > 0) value.setStorageSize(virtualDevice.getStorageSize());
         if(value instanceof VirtualDatabaseServer
-                && ((VirtualDatabaseServer) virtualDevice).getDatabase() != null
-                && !((VirtualDatabaseServer) virtualDevice).getDatabase().equals(((VirtualDatabaseServer) value).getDatabase())) {
-            ((VirtualDatabaseServer) value).setDatabase(((VirtualDatabaseServer) virtualDevice).getDatabase());
+                && ((VirtualDatabaseServer) virtualDevice).getDatabaseType() != null
+                && !((VirtualDatabaseServer) virtualDevice).getDatabaseType().equals(((VirtualDatabaseServer) value).getDatabaseType())) {
+            ((VirtualDatabaseServer) value).setDatabaseType(((VirtualDatabaseServer) virtualDevice).getDatabaseType());
         } else if(value instanceof VirtualMachine
                 && ((VirtualMachine) virtualDevice).getOperatingSystemType() != null
                 && !((VirtualMachine) virtualDevice).getOperatingSystemType().equals(((VirtualMachine) value).getOperatingSystemType())) {
@@ -113,10 +113,11 @@ public class VirtualDeviceManager {
             ((VirtualPhone) value).setPhoneNumber(((VirtualPhone) virtualDevice).getPhoneNumber());
         }
         virtualDeviceRepository.save(value);
+        return value;
     }
     public void deleteVirtualDevice(String id) throws DeviceHasAllocationException, VirtualDeviceNotFoundException {
         if(rentRepository.findAll().stream().anyMatch(rent -> rent.getVirtualDeviceId().equals(id))) {
-            virtualDeviceRepository.findById(id).orElseThrow(DeviceHasAllocationException::new);
+            throw new DeviceHasAllocationException();
         }
         virtualDeviceRepository.findById(id).orElseThrow(VirtualDeviceNotFoundException::new);
         virtualDeviceRepository.deleteById(id);

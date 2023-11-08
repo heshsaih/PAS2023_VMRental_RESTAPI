@@ -1,5 +1,6 @@
 package com.example.vmrentalrest.endpoints;
 
+import com.example.vmrentalrest.dto.VirtualDeviceDTO;
 import com.example.vmrentalrest.managers.VirtualDeviceManager;
 import com.example.vmrentalrest.model.enums.VirtualDeviceType;
 import com.example.vmrentalrest.model.virtualdevices.VirtualDevice;
@@ -23,12 +24,12 @@ public class VirtualDeviceEndpoint {
         return virtualDeviceManager.findVirtualDeviceById(id);
     }
     @PostMapping
-    public VirtualDevice createVirtualDevice(@RequestBody VirtualDevice virtualDevice, @RequestParam VirtualDeviceType virtualDeviceType) {
-        return virtualDeviceManager.createVirtualDevice(virtualDevice,virtualDeviceType);
+    public VirtualDevice createVirtualDevice(@RequestBody VirtualDeviceDTO virtualDeviceDTO) {
+        return virtualDeviceManager.createVirtualDevice(virtualDeviceDTO.convertToVirtualDevice(),virtualDeviceDTO.getVirtualDeviceType());
     }
     @PutMapping("/{id}")
-    public void updateVirtualDevice(@PathVariable String id, @RequestBody VirtualDevice virtualDevice) {
-        virtualDeviceManager.updateVirtualDevice(id,virtualDevice);
+    public VirtualDevice updateVirtualDevice(@PathVariable String id,@RequestBody VirtualDeviceDTO virtualDeviceDTO) {
+        return virtualDeviceManager.updateVirtualDevice(id,virtualDeviceDTO.convertToVirtualDevice());
     }
     @DeleteMapping("/{id}")
     public void deleteVirtualDevice(@PathVariable String id) {

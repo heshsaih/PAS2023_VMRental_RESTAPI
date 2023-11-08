@@ -9,10 +9,12 @@ import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidDa
 import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidRentException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.RentNotFoundException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.UserNotFoundException;
+import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.VirtualDeviceNotFoundException;
 import com.example.vmrentalrest.model.users.Client;
 import com.example.vmrentalrest.model.Rent;
 import com.example.vmrentalrest.repositories.UserRepository;
 import com.example.vmrentalrest.repositories.RentRepository;
+import com.example.vmrentalrest.repositories.VirtualDeviceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
@@ -29,6 +31,7 @@ public class RentManager {
     private final RentRepository rentRepository;
     private final UserManager userManager;
     private final UserRepository userRepository;
+    private final VirtualDeviceRepository virtualDeviceRepository;
 
     public Rent createRent(Rent rent) throws DeviceAlreadyRentedException, ClientHasTooManyRentsException, UserIsNotActiveException, UserNotFoundException, InvalidRentException {
         if(rent == null) {
@@ -80,27 +83,31 @@ public class RentManager {
         return rentRepository.findById(id).orElseThrow(RentNotFoundException::new);
     }
 
-    public void updateRent(String rentId,Rent rent) throws RentNotFoundException, CantUpdateRentException, InvalidRentException, InvalidDatesException {
+    public Rent updateRent(String rentId,Rent rent) throws RentNotFoundException, CantUpdateRentException, InvalidRentException, InvalidDatesException {
         if(rent == null) {
             throw new InvalidRentException();
         }
         var value = rentRepository.findById(rentId).orElseThrow(RentNotFoundException::new);
-            if(rent.getUserId() != null) value.setUserId(rent.getUserId());
-            if(rent.getVirtualDeviceId() != null) value.setVirtualDeviceId(rent.getVirtualDeviceId());
-            if(rent.getStartLocalDateTime() != null) value.setStartLocalDateTime(rent.getStartLocalDateTime());
-            if(rent.getEndLocalDateTime() != null) value.setEndLocalDateTime(rent.getEndLocalDateTime());
-            if(value.getStartLocalDateTime().isAfter(value.getEndLocalDateTime())) {
-                throw new InvalidDatesException();
-            }
-            if(willVirtualDeviceBeRented(value)) {
-                throw new CantUpdateRentException();
-            }
-            rentRepository.save(value);
+        if(rent.getUserId() != null) value.setUserId(rent.getUserId());
+        if(rent.getVirtualDeviceId() != null) value.setVirtualDeviceId(rent.getVirtualDeviceId());
+        if(rent.getStartLocalDateTime() != null) value.setStartLocalDateTime(rent.getStartLocalDateTime());
+        if(rent.getEndLocalDateTime() != null) value.setEndLocalDateTime(rent.getEndLocalDateTime());
+        if(value.getStartLocalDateTime().isAfter(value.getEndLocalDateTime())) {
+            throw new InvalidDatesException();
+        }
+        if(willVirtualDeviceBeRented(value)) {
+            throw new CantUpdateRentException();
+        }
+        rentRepository.save(value);
+        return value;
+
     }
     public List<Rent> findByVirtualDeviceId(String id) {
+        virtualDeviceRepository.findById(id).orElseThrow(VirtualDeviceNotFoundException::new);
         return rentRepository.findAllByVirtualDeviceId(id);
     }
     public List<Rent> findByUserId(String id) {
+        userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         return rentRepository.findAllByUserId(id);
     }
     private boolean willVirtualDeviceBeRented(Rent rent1) {
@@ -112,5 +119,4 @@ public class RentManager {
                         || rent.getStartLocalDateTime().isBefore(rent1.getEndLocalDateTime()) && rent.getEndLocalDateTime().isAfter(rent1.getEndLocalDateTime())
                         || rent.getStartLocalDateTime().isAfter(rent1.getStartLocalDateTime()) && rent.getEndLocalDateTime().isBefore(rent1.getEndLocalDateTime())));
     }
-    
 }
