@@ -28,8 +28,8 @@ public class UserEndpoint {
     public User getUserByUsername(@RequestParam String username) {
         return userManager.findByUsername(username);
     }
-    @GetMapping("/getbyusernamecontains")
-    public List<User> getUsersByUsernameContains(@RequestParam String username) {
+    @GetMapping("/getbyusernamecontains/{username}")
+    public List<User> getUsersByUsernameContains(@PathVariable String username) {
         return userManager.findAllByUsernameContainsIgnoreCase(username);
     }
     @PostMapping
