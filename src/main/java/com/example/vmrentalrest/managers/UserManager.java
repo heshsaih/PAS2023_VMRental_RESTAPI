@@ -149,7 +149,8 @@ public class UserManager {
         }
         if(UserType.CLIENT.equals(userType)
                 && ((Client) user).getClientType() != null
-                && !((Client) user).getClientType().equals(((Client) userOpt).getClientType())) {
+                && !((Client) user).getClientType().equals(((Client) userOpt).getClientType())
+                && findUserById(id) instanceof Client) {
             ((Client) userOpt).setClientType(((Client) user).getClientType());
         }
         userRepository.save(userOpt);
