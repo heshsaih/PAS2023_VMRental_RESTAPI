@@ -42,3 +42,4 @@ services:
 networks:
   mongors-network:
     driver: bridge
+# docker exec mongo1 /scripts/rs-init.sh

@@ -9,8 +9,10 @@ import com.example.vmrentalrest.model.virtualdevices.VirtualDevice;
 import com.example.vmrentalrest.model.virtualdevices.VirtualMachine;
 import com.example.vmrentalrest.model.virtualdevices.VirtualPhone;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class VirtualDeviceDTO {
     private VirtualDeviceType virtualDeviceType;
     private String id;
@@ -20,6 +22,25 @@ public class VirtualDeviceDTO {
     private OperatingSystemType operatingSystemType;
     private DatabaseType databaseType;
     private int phoneNumber;
+
+    public VirtualDeviceDTO(VirtualDevice virtualDevice) {
+        if(virtualDevice instanceof VirtualDatabaseServer) {
+            this.virtualDeviceType = VirtualDeviceType.VIRTUAL_DATABASE_SERVER;
+            this.databaseType = ((VirtualDatabaseServer) virtualDevice).getDatabaseType();
+        } else if(virtualDevice instanceof VirtualMachine) {
+            this.virtualDeviceType = VirtualDeviceType.VIRTUAL_MACHINE;
+            this.operatingSystemType = ((VirtualMachine) virtualDevice).getOperatingSystemType();
+        } else if(virtualDevice instanceof VirtualPhone) {
+            this.virtualDeviceType = VirtualDeviceType.VIRTUAL_PHONE;
+            this.phoneNumber = ((VirtualPhone) virtualDevice).getPhoneNumber();
+        } else {
+            throw new UnknownVirtualDeviceTypeException();
+        }
+        this.storageSize = virtualDevice.getStorageSize();
+        this.cpuCores = virtualDevice.getCpuCores();
+        this.ram =  virtualDevice.getRam();
+        this.id = virtualDevice.getId();
+    }
 
     public VirtualDevice convertToVirtualDevice(){
         if(this.virtualDeviceType == null) {

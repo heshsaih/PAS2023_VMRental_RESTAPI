@@ -16,16 +16,19 @@ public class VirtualDeviceEndpoint {
 
     private final VirtualDeviceManager virtualDeviceManager;
     @GetMapping
-    public List<VirtualDevice> getAllVirtualDevices() {
-        return virtualDeviceManager.findAllVirtualDevices();
+    public List<VirtualDeviceDTO> getAllVirtualDevices() {
+        return virtualDeviceManager.findAllVirtualDevices()
+                .stream()
+                .map(VirtualDeviceDTO::new)
+                .toList();
     }
     @GetMapping("/{id}")
-    public VirtualDevice getVirtualDeviceById(@PathVariable String id) {
-        return virtualDeviceManager.findVirtualDeviceById(id);
+    public VirtualDeviceDTO getVirtualDeviceById(@PathVariable String id) {
+        return new VirtualDeviceDTO(virtualDeviceManager.findVirtualDeviceById(id));
     }
     @PostMapping
-    public VirtualDevice createVirtualDevice(@RequestBody VirtualDeviceDTO virtualDeviceDTO) {
-        return virtualDeviceManager.createVirtualDevice(virtualDeviceDTO.convertToVirtualDevice(),virtualDeviceDTO.getVirtualDeviceType());
+    public VirtualDeviceDTO createVirtualDevice(@RequestBody VirtualDeviceDTO virtualDeviceDTO) {
+        return new VirtualDeviceDTO(virtualDeviceManager.createVirtualDevice(virtualDeviceDTO.convertToVirtualDevice(),virtualDeviceDTO.getVirtualDeviceType()));
     }
     @PutMapping("/{id}")
     public VirtualDevice updateVirtualDevice(@PathVariable String id,@RequestBody VirtualDeviceDTO virtualDeviceDTO) {

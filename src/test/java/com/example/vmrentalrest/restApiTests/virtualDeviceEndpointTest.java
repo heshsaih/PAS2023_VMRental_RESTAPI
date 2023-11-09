@@ -3,7 +3,6 @@ package com.example.vmrentalrest.restApiTests;
 import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.dto.VirtualDeviceDTO;
 import com.example.vmrentalrest.endpoints.VirtualDeviceEndpoint;
-import com.example.vmrentalrest.managers.UserManager;
 import com.example.vmrentalrest.managers.VirtualDeviceManager;
 import com.example.vmrentalrest.model.enums.DatabaseType;
 import com.example.vmrentalrest.model.enums.VirtualDeviceType;
@@ -41,10 +40,10 @@ public class virtualDeviceEndpointTest {
     @Transactional
     void getAllVirtualDevicesTest() throws Exception {
         dbManagementTools.createData();
-        var devices = virtualDeviceEndpoint.getAllVirtualDevices();
-        VirtualDevice device1 = devices.get(0);
-        VirtualDevice device2 = devices.get(1);
-        VirtualDevice device3 = devices.get(2);
+        var devices = virtualDeviceManager.findAllVirtualDevices();
+        var device1 = devices.get(0);
+        var device2 = devices.get(1);
+        var device3 = devices.get(2);
         mockMvc.perform(get("/virtual-devices"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -69,7 +68,7 @@ public class virtualDeviceEndpointTest {
     @Transactional
     void getVirtualDeviceByIdTest() throws Exception {
         dbManagementTools.createData();
-        var devices = virtualDeviceEndpoint.getAllVirtualDevices();
+        var devices = virtualDeviceManager.findAllVirtualDevices();
         VirtualDevice device1 = devices.get(0);
         VirtualDevice device2 = devices.get(1);
         VirtualDevice device3 = devices.get(2);
@@ -208,7 +207,7 @@ public class virtualDeviceEndpointTest {
     @Transactional
     void deleteVirtualDevice() throws Exception {
         dbManagementTools.createData();
-        var devices = virtualDeviceEndpoint.getAllVirtualDevices();
+        var devices = virtualDeviceManager.findAllVirtualDevices();
         VirtualDevice device1 = devices.get(0);
         VirtualDevice device2 = devices.get(1);
         VirtualDevice device3 = devices.get(2);

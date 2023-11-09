@@ -17,29 +17,35 @@ public class UserEndpoint {
     private final UserManager userManager;
 
     @GetMapping
-    public List<User> getAllUsers(){
-        return userManager.findAllUsers();
+    public List<UserDTO> getAllUsers(){
+        return userManager.findAllUsers()
+                .stream()
+                .map(UserDTO::new)
+                .toList();
     }
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable String id) {
+    public UserDTO getUserById(@PathVariable String id) {
             userManager.removeFromActiveRents(id);
-            return userManager.findUserById(id);
+            return new UserDTO(userManager.findUserById(id));
     }
     @GetMapping("/getbyusername")
-    public User getUserByUsername(@RequestParam String username) {
-        return userManager.findByUsername(username);
+    public UserDTO getUserByUsername(@RequestParam String username) {
+        return new UserDTO(userManager.findByUsername(username));
     }
     @GetMapping("/getbyusernamecontains/{username}")
-    public List<User> getUsersByUsernameContains(@PathVariable String username) {
-        return userManager.findAllByUsernameContainsIgnoreCase(username);
+    public List<UserDTO> getUsersByUsernameContains(@PathVariable String username) {
+        return userManager.findAllByUsernameContainsIgnoreCase(username)
+                .stream()
+                .map(UserDTO::new)
+                .toList();
     }
     @PostMapping
-    public User createUser(@RequestBody UserDTO userDTO) {
-        return userManager.createUser(userDTO.convertToUser(),userDTO.getUserType());
+    public UserDTO createUser(@RequestBody UserDTO userDTO) {
+        return new UserDTO(userManager.createUser(userDTO.convertToUser(),userDTO.getUserType()));
     }
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable String id, @RequestBody UserDTO userDTO) {
-        return userManager.updateUser(id,userDTO.convertToUser(),userDTO.getUserType());
+    public UserDTO updateUser(@PathVariable String id, @RequestBody UserDTO userDTO) {
+        return new UserDTO(userManager.updateUser(id,userDTO.convertToUser(),userDTO.getUserType()));
     }
     @PatchMapping("/{id}/activate")
     public void activateUser(@PathVariable String id) {

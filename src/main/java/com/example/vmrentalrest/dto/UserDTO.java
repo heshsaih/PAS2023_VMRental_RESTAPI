@@ -9,6 +9,7 @@ import lombok.*;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 public class UserDTO {
     private UserType userType;
     private String id;
@@ -19,6 +20,25 @@ public class UserDTO {
     private Address address;
     private ClientType clientType;
     private List<String> activeRents;
+    public UserDTO (User user){
+        if(user instanceof Administrator){
+            this.userType = UserType.ADMINISTRATOR;
+        } else if(user instanceof Client){
+            this.userType = UserType.CLIENT;
+            this.clientType = ((Client) user).getClientType();
+            this.activeRents = ((Client) user).getActiveRents();
+        } else if(user instanceof ResourceManager){
+            this.userType = UserType.RESOURCE_MANAGER;
+        } else {
+            throw new UnknownUserTypeException();
+        }
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.firstName = user.getFirstName();
+        this.active = user.isActive();
+        this.lastName = user.getLastName();
+        this.address = user.getAddress();
+    }
 
 
     public User convertToUser(){
