@@ -1,12 +1,10 @@
 package com.example.vmrentalrest.managers;
 
+
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.CantDeleteRentException;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.ClientHasTooManyRentsException;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.UserIsNotActiveException;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DeviceAlreadyRentedException;
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.CantUpdateRentException;
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidDatesException;
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidRentException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.RentNotFoundException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.UserNotFoundException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.VirtualDeviceNotFoundException;
@@ -47,11 +45,10 @@ public class RentManager {
         }
         Client client = (Client) userManager.findUserById(rent.getUserId());
         VirtualDevice virtualDevice = virtualDeviceRepository.findById(rent.getVirtualDeviceId()).orElseThrow(VirtualDeviceNotFoundException::new);
-        userManager.removeFromActiveRents(client.getId());
         if(!client.isActive()) {
             throw new UserIsNotActiveException();
         }
-        if(client.getActiveRents().size() >= client.getClientType().getValue()){
+        if(userManager.getActiveRents(client.getId()).size() >= client.getClientType().getValue()){
             throw new ClientHasTooManyRentsException();
         }
         if(!willVirtualDeviceBeRented(rent)) {
@@ -61,7 +58,6 @@ public class RentManager {
             newRent.setUserId(client.getId());
             newRent.setVirtualDeviceId(virtualDevice.getId());
             rentRepository.save(newRent);
-            userManager.addRentToCurrentRents(client, newRent);
             return newRent;
         } else {
             throw new DeviceAlreadyRentedException();
@@ -73,7 +69,6 @@ public class RentManager {
             throw new CantDeleteRentException();
         }
         Client client = (Client) userManager.findUserById(rent.getUserId());
-        client.getActiveRents().remove(rent.getRentId());
         userRepository.save(client);
         rentRepository.deleteById(id);
     }
@@ -90,8 +85,8 @@ public class RentManager {
             throw new InvalidRentException();
         }
         var value = rentRepository.findById(rentId).orElseThrow(RentNotFoundException::new);
-        if(rent.getUserId() != null) value.setUserId(rent.getUserId());
-        if(rent.getVirtualDeviceId() != null) value.setVirtualDeviceId(rent.getVirtualDeviceId());
+        //if(rent.getUserId() != null) value.setUserId(rent.getUserId());
+        //if(rent.getVirtualDeviceId() != null) value.setVirtualDeviceId(rent.getVirtualDeviceId());
         if(rent.getStartLocalDateTime() != null) value.setStartLocalDateTime(rent.getStartLocalDateTime());
         if(rent.getEndLocalDateTime() != null) value.setEndLocalDateTime(rent.getEndLocalDateTime());
         if(value.getStartLocalDateTime().isAfter(value.getEndLocalDateTime())) {
@@ -113,12 +108,40 @@ public class RentManager {
         return rentRepository.findAllByUserId(id);
     }
     private boolean willVirtualDeviceBeRented(Rent rent1) {
-        return rentRepository.findAllByVirtualDeviceId(rent1.getVirtualDeviceId())
-                .stream()
-                .anyMatch(rent ->
-                        !rent.getRentId().equals(rent1.getRentId())
-                        &&(rent.getStartLocalDateTime().isBefore(rent1.getStartLocalDateTime()) && rent.getEndLocalDateTime().isAfter(rent1.getStartLocalDateTime())
-                        || rent.getStartLocalDateTime().isBefore(rent1.getEndLocalDateTime()) && rent.getEndLocalDateTime().isAfter(rent1.getEndLocalDateTime())
-                        || rent.getStartLocalDateTime().isAfter(rent1.getStartLocalDateTime()) && rent.getEndLocalDateTime().isBefore(rent1.getEndLocalDateTime())));
+        return rentRepository.existsRentByVirtualDeviceIdAndRentIdNotAndStartLocalDateTimeIsBeforeAndEndLocalDateTimeIsAfter(
+                rent1.getVirtualDeviceId(),
+                rent1.getRentId(),
+                rent1.getStartLocalDateTime(),
+                rent1.getStartLocalDateTime())
+                || rentRepository.existsRentByVirtualDeviceIdAndRentIdNotAndStartLocalDateTimeIsBeforeAndEndLocalDateTimeIsAfter(
+                rent1.getVirtualDeviceId(),
+                rent1.getRentId(),
+                rent1.getEndLocalDateTime(),
+                rent1.getEndLocalDateTime())
+                || rentRepository.existsRentByVirtualDeviceIdAndRentIdNotAndStartLocalDateTimeIsAfterAndEndLocalDateTimeIsBefore(
+                rent1.getVirtualDeviceId(),
+                rent1.getRentId(),
+                rent1.getStartLocalDateTime(),
+                rent1.getEndLocalDateTime());
     }
+//                rentRepository.findAllByVirtualDeviceId(rent1.getVirtualDeviceId())
+//                .stream()
+//                .anyMatch(rent ->
+//                        !rent.getRentId().equals(rent1.getRentId())
+//                        &&(rent.getStartLocalDateTime().isBefore(rent1.getStartLocalDateTime()) && rent.getEndLocalDateTime().isAfter(rent1.getStartLocalDateTime())
+//                        || rent.getStartLocalDateTime().isBefore(rent1.getEndLocalDateTime()) && rent.getEndLocalDateTime().isAfter(rent1.getEndLocalDateTime())
+//                        || rent.getStartLocalDateTime().isAfter(rent1.getStartLocalDateTime()) && rent.getEndLocalDateTime().isBefore(rent1.getEndLocalDateTime())));
+//    }
+//                rentRepository.existsRentByVirtualDeviceIdAndRentIdNotAndStartLocalDateTimeIsBeforeAndEndLocalDateTimeIsAfterOrRentIdNotAndStartLocalDateTimeIsBeforeAndEndLocalDateTimeIsAfterOrRentIdNotAndStartLocalDateTimeIsAfterAndEndLocalDateTimeIsBefore(
+//                rent1.getVirtualDeviceId(),
+//                rent1.getRentId(),
+//                rent1.getStartLocalDateTime(),
+//                rent1.getStartLocalDateTime(),
+//                rent1.getRentId(),
+//                rent1.getEndLocalDateTime(),
+//                rent1.getEndLocalDateTime(),
+//                rent1.getRentId(),
+//                rent1.getStartLocalDateTime(),
+//                rent1.getEndLocalDateTime());
+
 }

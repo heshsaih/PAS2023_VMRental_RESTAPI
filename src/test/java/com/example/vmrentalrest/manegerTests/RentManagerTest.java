@@ -125,10 +125,10 @@ class RentManagerTest {
         String bufferedRentId = rentManager.findAllRents().get(0).getRentId();
         int bufferedRents = rentManager.findAllRents().size();
         var rent = rentManager.findRentById(bufferedRentId);
-        int ActiveRentsSize = ((Client) userManager.findUserById(rent.getUserId())).getActiveRents().size();
+        int ActiveRentsSize = userManager.getActiveRents(rent.getUserId()).size();
         rentManager.deleteRent(bufferedRentId);
         Assertions.assertThat(rentManager.findAllRents().size() == bufferedRents - 1).isTrue();
-        Assertions.assertThat(((Client) userManager.findUserById(rent.getUserId())).getActiveRents().size() == ActiveRentsSize - 1).isTrue();
+        Assertions.assertThat(userManager.getActiveRents(rent.getUserId()).size() == ActiveRentsSize - 1).isTrue();
         Assertions.assertThatThrownBy(() -> rentManager.findRentById(bufferedRentId)).isInstanceOf(RentNotFoundException.class);
 
     }

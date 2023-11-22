@@ -2,8 +2,6 @@ package com.example.vmrentalrest.manegerTests;
 
 import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DuplicateRecordException;
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidUserException;
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.UnknownUserTypeException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.UserNotFoundException;
 import com.example.vmrentalrest.managers.UserManager;
 import com.example.vmrentalrest.model.enums.ClientType;

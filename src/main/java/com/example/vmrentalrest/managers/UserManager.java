@@ -1,9 +1,9 @@
 package com.example.vmrentalrest.managers;
 
+import com.example.vmrentalrest.exceptions.ErrorMessages;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DuplicateRecordException;
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidUserException;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.IllegalOperationException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.UserNotFoundException;
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.UnknownUserTypeException;
 import com.example.vmrentalrest.model.enums.UserType;
 import com.example.vmrentalrest.model.users.Administrator;
 import com.example.vmrentalrest.model.users.Client;
@@ -12,6 +12,8 @@ import com.example.vmrentalrest.model.users.ResourceManager;
 import com.example.vmrentalrest.model.users.User;
 import com.example.vmrentalrest.repositories.RentRepository;
 import com.example.vmrentalrest.repositories.UserRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
@@ -21,21 +23,36 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @Transactional(isolation = Isolation.REPEATABLE_READ)
 @RequiredArgsConstructor
 public class UserManager {
+    private final Validator validator;
 
 
     private final UserRepository userRepository;
     private final RentRepository rentRepository;
 
+    public Administrator createAdministrator(@Valid Administrator administrator) throws IllegalOperationException {
+        userRepository.save(administrator);
+        return administrator;
+    }
+    public ResourceManager createResourceManager(@Valid ResourceManager resourceManager) throws IllegalOperationException {
+        userRepository.save(resourceManager);
+        return resourceManager;
+    }
+    public Client createClient(@Valid Client client) throws IllegalOperationException {
+        userRepository.save(client);
+        return client;
+    }
 
-    public User createUser(User user,UserType userType) throws DuplicateRecordException, UnknownUserTypeException, InvalidUserException {
+    public User createUser(@Valid User user, UserType userType) throws DuplicateRecordException, UnknownUserTypeException, InvalidUserException {
+      //  validator.validate(user).forEach(violation -> {
+     //       System.out.println(violation.getMessage());
+     //   });
         if(userType == null){
-            throw new UnknownUserTypeException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_IS_NULL_MESSAGE);
         } else if(!isUserValid(user,userType)){
             throw new InvalidUserException();
         }
@@ -50,7 +67,6 @@ public class UserManager {
                 Client client = new Client();
                 setUserProperties(client,user);
                 client.setClientType(((Client) user).getClientType());
-                client.setActiveRents(new ArrayList<>());
                 userRepository.save(client);
                 return client;
             }
@@ -86,23 +102,12 @@ public class UserManager {
         }
         return false;
     }
-    public void removeFromActiveRents(String clientId) throws UserNotFoundException {
-        userRepository.findById(clientId).ifPresent(client -> {
-            if(client instanceof Client) {
-                ((Client) client).setActiveRents(((Client) client).getActiveRents()
-                        .stream()
-                        .filter(value -> rentRepository
-                                .findById(value).get()
-                                .getEndLocalDateTime()
-                                .isAfter(LocalDateTime.now()))
-                        .collect(Collectors.toList()));
-                userRepository.save(client);
-            }
-        });
+    public List<Rent> getActiveRents(String id) {
+        return rentRepository.findRentsByUserIdAndEndLocalDateTimeIsAfter(id, LocalDateTime.now());
     }
     private void setUserProperties(User nonAbstractUser,User user) throws DuplicateRecordException {
         if(userRepository.existsByUsername(user.getUsername())){
-            throw new DuplicateRecordException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_ALREADY_EXISTS_MESSAGE);
         }
         nonAbstractUser.setUsername(user.getUsername());
         nonAbstractUser.setActive(true);
@@ -117,18 +122,9 @@ public class UserManager {
     public User findUserById(String id) throws UserNotFoundException {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
-    public Client addRentToCurrentRents(Client client, Rent rent) throws UserNotFoundException {
-      var userOpt =  userRepository.findById(client.getId());
-      userOpt.ifPresent(value -> {
-          ((Client) value).getActiveRents().add(rent.getRentId());
-          userRepository.save(value);
-      });
-      return (Client) userOpt.orElseThrow(UserNotFoundException::new);
-    }
-    public User updateUser(String id, User user,UserType userType) throws UserNotFoundException {
-        if(userType == null) {
-            throw new UnknownUserTypeException();
-        }
+
+    public User updateUser(String id, User user) throws UserNotFoundException {
+
         var userOpt = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         if(user.getFirstName() != null
                 && StringUtils.hasText(user.getFirstName())){
@@ -146,12 +142,6 @@ public class UserManager {
                 && user.getAddress().getHouseNumber() != null
                 && StringUtils.hasText(user.getAddress().getHouseNumber())) {
             userOpt.setAddress(user.getAddress());
-        }
-        if(UserType.CLIENT.equals(userType)
-                && ((Client) user).getClientType() != null
-                && !((Client) user).getClientType().equals(((Client) userOpt).getClientType())
-                && findUserById(id) instanceof Client) {
-            ((Client) userOpt).setClientType(((Client) user).getClientType());
         }
         userRepository.save(userOpt);
         return userOpt;
@@ -175,5 +165,8 @@ public class UserManager {
     }
     public ArrayList<User> findAllByUsernameContainsIgnoreCase(String username) {
         return userRepository.findAllByUsernameContainsIgnoreCase(username);
+    }
+    public ArrayList<Rent> findUserActiveRents(String userID) {
+        return rentRepository.findRentsByUserIdAndEndLocalDateTimeIsAfter(userID,LocalDateTime.now());
     }
 }

@@ -42,6 +42,7 @@ public class DBManagementTools {
         address1.setHouseNumber("4/7");
         client1.setUsername("Pudzianator");
         client1.setFirstName("Mariusz");
+        client1.setPassword("1234");
         client1.setLastName("Pudzianowski");
         client1.setAddress(address1);
         client1.setClientType(ClientType.BRONZE);
@@ -54,6 +55,7 @@ public class DBManagementTools {
         client2.setUsername("małyszo2");
         client2.setFirstName("Adam");
         client2.setLastName("Małysz");
+        client2.setPassword("12343232");
         client2.setAddress(address2);
         client2.setClientType(ClientType.BRONZE);
         userManager.createUser(client2, UserType.CLIENT);
@@ -65,6 +67,7 @@ public class DBManagementTools {
         client3.setUsername("kamil");
         client3.setFirstName("Kamil");
         client3.setLastName("Stoch");
+        client3.setPassword("haslo123");
         client3.setAddress(address5);
         client3.setClientType(ClientType.GOLD);
         userManager.createUser(client3, UserType.CLIENT);
@@ -76,6 +79,7 @@ public class DBManagementTools {
         administrator.setUsername("admin");
         administrator.setFirstName("Jan");
         administrator.setLastName("Kowalski");
+        administrator.setPassword("admin123");
         administrator.setAddress(address3);
         userManager.createUser(administrator, UserType.ADMINISTRATOR);
         ResourceManager resourceManager = new ResourceManager();
@@ -86,6 +90,7 @@ public class DBManagementTools {
         resourceManager.setUsername("resmanager");
         resourceManager.setFirstName("Andrzej");
         resourceManager.setLastName("Nowak");
+        resourceManager.setPassword("resmanager123");
         resourceManager.setAddress(address4);
         userManager.createUser(resourceManager, UserType.RESOURCE_MANAGER);
         userManager.findAllUsers().get(3).setActive(false);

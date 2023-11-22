@@ -2,7 +2,6 @@ package com.example.vmrentalrest.manegerTests;
 
 import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DeviceHasAllocationException;
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidVirtualDeviceException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.VirtualDeviceNotFoundException;
 import com.example.vmrentalrest.managers.VirtualDeviceManager;
 import com.example.vmrentalrest.model.enums.DatabaseType;

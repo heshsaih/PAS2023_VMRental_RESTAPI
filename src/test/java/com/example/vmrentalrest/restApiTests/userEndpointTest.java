@@ -1,16 +1,14 @@
 package com.example.vmrentalrest.restApiTests;
 
 import com.example.vmrentalrest.DBManagementTools;
-import com.example.vmrentalrest.dto.UserDTO;
+import com.example.vmrentalrest.dto.getuserdto.GetUserDTO;
 import com.example.vmrentalrest.endpoints.UserEndpoint;
 import com.example.vmrentalrest.managers.UserManager;
 import com.example.vmrentalrest.model.enums.ClientType;
 import com.example.vmrentalrest.model.enums.UserType;
 import com.example.vmrentalrest.model.users.Address;
-import com.example.vmrentalrest.model.users.Administrator;
 import com.example.vmrentalrest.model.users.Client;
 import com.example.vmrentalrest.model.users.User;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -60,8 +58,6 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$[0].address.houseNumber").value(user1.getAddress().getHouseNumber()))
                 .andExpect(jsonPath("$[0].active").value(user1.isActive()))
                 .andExpect(jsonPath("$[0].clientType").value(((Client) user1).getClientType().toString()))
-                .andExpect(jsonPath("$[0].activeRents").isArray())
-                .andExpect(jsonPath("$[0].activeRents[0]").value(((Client) user1).getActiveRents().get(0)))
                 .andExpect(jsonPath("$[1].username").value(user2.getUsername()))
                 .andExpect(jsonPath("$[1].firstName").value(user2.getFirstName()))
                 .andExpect(jsonPath("$[1].lastName").value(user2.getLastName()))
@@ -70,8 +66,6 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$[1].address.houseNumber").value(user2.getAddress().getHouseNumber()))
                 .andExpect(jsonPath("$[1].active").value(user2.isActive()))
                 .andExpect(jsonPath("$[1].clientType").value(((Client) user2).getClientType().toString()))
-                .andExpect(jsonPath("$[1].activeRents").isArray())
-                .andExpect(jsonPath("$[1].activeRents[0]").value(((Client) user2).getActiveRents().get(0)))
                 .andExpect(jsonPath("$[2].username").value(user3.getUsername()))
                 .andExpect(jsonPath("$[2].firstName").value(user3.getFirstName()))
                 .andExpect(jsonPath("$[2].lastName").value(user3.getLastName()))
@@ -80,7 +74,6 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$[2].address.houseNumber").value(user3.getAddress().getHouseNumber()))
                 .andExpect(jsonPath("$[2].active").value(user3.isActive()))
                 .andExpect(jsonPath("$[2].clientType").value(((Client) user3).getClientType().toString()))
-                .andExpect(jsonPath("$[2].activeRents").isArray())
                 .andExpect(jsonPath("$[3].username").value(user4.getUsername()))
                 .andExpect(jsonPath("$[3].firstName").value(user4.getFirstName()))
                 .andExpect(jsonPath("$[3].lastName").value(user4.getLastName()))
@@ -112,9 +105,7 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$.address.street").value(client.getAddress().getStreet()))
                 .andExpect(jsonPath("$.address.houseNumber").value(client.getAddress().getHouseNumber()))
                 .andExpect(jsonPath("$.active").value(client.isActive()))
-                .andExpect(jsonPath("$.clientType").value(client.getClientType().toString()))
-                .andExpect(jsonPath("$.activeRents").isArray())
-                .andExpect(jsonPath("$.activeRents[0]").value(client.getActiveRents().get(0)));
+                .andExpect(jsonPath("$.clientType").value(client.getClientType().toString()));
         mockMvc.perform(get("/users/{id}","123"))
                 .andExpect(status().isNotFound());
 
@@ -135,8 +126,6 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$[0].address.houseNumber").value(users.get(0).getAddress().getHouseNumber()))
                 .andExpect(jsonPath("$[0].active").value(users.get(0).isActive()))
                 .andExpect(jsonPath("$[0].clientType").value(((Client) users.get(0)).getClientType().toString()))
-                .andExpect(jsonPath("$[0].activeRents").isArray())
-                .andExpect(jsonPath("$[0].activeRents[0]").value(((Client) users.get(0)).getActiveRents().get(0)))
                 .andExpect(jsonPath("$[1].username").value(users.get(4).getUsername()))
                 .andExpect(jsonPath("$[1].firstName").value(users.get(4).getFirstName()))
                 .andExpect(jsonPath("$[1].lastName").value(users.get(4).getLastName()))
@@ -162,9 +151,7 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$.address.street").value(client.getAddress().getStreet()))
                 .andExpect(jsonPath("$.address.houseNumber").value(client.getAddress().getHouseNumber()))
                 .andExpect(jsonPath("$.active").value(client.isActive()))
-                .andExpect(jsonPath("$.clientType").value(client.getClientType().toString()))
-                .andExpect(jsonPath("$.activeRents").isArray())
-                .andExpect(jsonPath("$.activeRents[0]").value(client.getActiveRents().get(0)));
+                .andExpect(jsonPath("$.clientType").value(client.getClientType().toString()));
         mockMvc.perform(get("/users/getbyusername")
                 .param("username","test321321"))
                 .andExpect(status().isNotFound());
@@ -177,7 +164,7 @@ public class userEndpointTest {
         address.setCity("Lodz");
         address.setStreet("Aleje Politechniki");
         address.setHouseNumber("6/7");
-        UserDTO userClient = new UserDTO();
+        GetUserDTO userClient = new GetUserDTO();
         userClient.setUserType(UserType.CLIENT);
         userClient.setUsername("test");
         userClient.setFirstName("test");
@@ -197,8 +184,7 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$.address.city").value(userClient.getAddress().getCity()))
                 .andExpect(jsonPath("$.address.street").value(userClient.getAddress().getStreet()))
                 .andExpect(jsonPath("$.address.houseNumber").value(userClient.getAddress().getHouseNumber()))
-                .andExpect(jsonPath("$.clientType").value(userClient.getClientType().toString()))
-                .andExpect(jsonPath("$.activeRents").isArray());
+                .andExpect(jsonPath("$.clientType").value(userClient.getClientType().toString()));
         mockMvc.perform(post("/users")
                 .content(json)
                 .contentType("application/json"))
@@ -207,7 +193,7 @@ public class userEndpointTest {
         address2.setCity("Olsztyn");
         address2.setStreet("Narutowicza");
         address2.setHouseNumber("7");
-        UserDTO userAdministrator = new UserDTO();
+        GetUserDTO userAdministrator = new GetUserDTO();
         userAdministrator.setUserType(UserType.ADMINISTRATOR);
         userAdministrator.setUsername("test2");
         userAdministrator.setFirstName("test2");
@@ -226,13 +212,12 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$.address.street").value(userAdministrator.getAddress().getStreet()))
                 .andExpect(jsonPath("$.address.houseNumber").value(userAdministrator.getAddress().getHouseNumber()))
                 .andExpect(jsonPath("$.active").value(userAdministrator.isActive()))
-                .andExpect(jsonPath("$.clientType").doesNotExist())
-                .andExpect(jsonPath("$.activeRents").doesNotExist());
+                .andExpect(jsonPath("$.clientType").doesNotExist());
         Address address3 = new Address();
         address3.setCity("Warszawa");
         address3.setStreet("Marszalkowska");
         address3.setHouseNumber("1");
-        UserDTO userResourceManager = new UserDTO();
+        GetUserDTO userResourceManager = new GetUserDTO();
         userResourceManager.setUserType(UserType.RESOURCE_MANAGER);
         userResourceManager.setUsername("test2");
         userResourceManager.setFirstName("test2");
@@ -256,7 +241,7 @@ public class userEndpointTest {
     void updateUserTest() throws Exception {
         dbManagementTools.createData();
         Client client = (Client) userManager.findAllUsers().get(0);
-        UserDTO userClient = new UserDTO();
+        GetUserDTO userClient = new GetUserDTO();
         userClient.setUserType(UserType.CLIENT);
         userClient.setFirstName("test212121");
         userClient.setLastName("test77777");
@@ -272,8 +257,7 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$.address.city").value(client.getAddress().getCity()))
                 .andExpect(jsonPath("$.address.street").value(client.getAddress().getStreet()))
                 .andExpect(jsonPath("$.address.houseNumber").value(client.getAddress().getHouseNumber()))
-                .andExpect(jsonPath("$.clientType").value(userClient.getClientType().toString()))
-                .andExpect(jsonPath("$.activeRents").isArray());
+                .andExpect(jsonPath("$.clientType").value(userClient.getClientType().toString()));
         mockMvc.perform(put("/users/{id}","123")
                 .content(json)
                 .contentType("application/json"))

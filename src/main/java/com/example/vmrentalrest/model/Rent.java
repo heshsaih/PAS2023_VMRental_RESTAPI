@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Document
 public class Rent {
+
     @Id
     private String rentId;
     private LocalDateTime startLocalDateTime;

@@ -1,6 +1,5 @@
 package com.example.vmrentalrest.dto;
 
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.UnknownVirtualDeviceTypeException;
 import com.example.vmrentalrest.model.enums.DatabaseType;
 import com.example.vmrentalrest.model.enums.OperatingSystemType;
 import com.example.vmrentalrest.model.enums.VirtualDeviceType;

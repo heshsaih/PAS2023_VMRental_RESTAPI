@@ -14,5 +14,5 @@ import java.util.List;
 public class Client extends User {
 
     private ClientType clientType;
-    private List<String> activeRents;
+
 }
