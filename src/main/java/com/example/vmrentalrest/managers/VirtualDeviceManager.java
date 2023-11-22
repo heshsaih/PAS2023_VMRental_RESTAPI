@@ -1,6 +1,8 @@
 package com.example.vmrentalrest.managers;
 
+import com.example.vmrentalrest.exceptions.ErrorMessages;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DeviceHasAllocationException;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.IllegalOperationException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.VirtualDeviceNotFoundException;
 import com.example.vmrentalrest.model.enums.VirtualDeviceType;
 import com.example.vmrentalrest.model.virtualdevices.VirtualDatabaseServer;
@@ -23,11 +25,11 @@ public class VirtualDeviceManager {
 
     private final VirtualDeviceRepository virtualDeviceRepository;
     private final RentRepository rentRepository;
-    public VirtualDevice createVirtualDevice(VirtualDevice virtualDevice, VirtualDeviceType virtualDeviceType) throws InvalidVirtualDeviceException {
+    public VirtualDevice createVirtualDevice(VirtualDevice virtualDevice, VirtualDeviceType virtualDeviceType) throws IllegalOperationException {
         if(virtualDevice == null
             || virtualDeviceType == null
             || !isVirtualDeviceValid(virtualDevice,virtualDeviceType)) {
-            throw new InvalidVirtualDeviceException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
         }
         switch(virtualDeviceType) {
             case VIRTUAL_DATABASE_SERVER -> {
@@ -51,7 +53,7 @@ public class VirtualDeviceManager {
                 virtualDeviceRepository.save(virtualPhone);
                 return virtualPhone;
             }
-            default -> throw new InvalidVirtualDeviceException();
+            default -> throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
         }
     }
 
@@ -76,21 +78,21 @@ public class VirtualDeviceManager {
                         return false;
                     }
                 }
-                default -> throw new InvalidVirtualDeviceException();
+                default -> throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
             }
-        } catch (InvalidVirtualDeviceException e) {
+        } catch (IllegalOperationException e) {
             return false;
         }
         return true;
     }
 
-    private void setVirtualDeviceProperties(VirtualDevice nonAbstractVirtualDevice, VirtualDevice virtualDevice) throws InvalidVirtualDeviceException {
+    private void setVirtualDeviceProperties(VirtualDevice nonAbstractVirtualDevice, VirtualDevice virtualDevice) throws IllegalOperationException{
         try {
             nonAbstractVirtualDevice.setCpuCores(virtualDevice.getCpuCores());
             nonAbstractVirtualDevice.setRam(virtualDevice.getRam());
             nonAbstractVirtualDevice.setStorageSize(virtualDevice.getStorageSize());
         } catch (NullPointerException e) {
-            throw new InvalidVirtualDeviceException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
         }
     }
     public VirtualDevice updateVirtualDevice(String id,VirtualDevice virtualDevice) throws VirtualDeviceNotFoundException {

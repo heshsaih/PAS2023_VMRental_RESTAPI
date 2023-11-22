@@ -36,6 +36,8 @@ public class ErrorMessages {
         public static final String STREET_IS_NULL_MESSAGE = "{STREET_IS_NULL}";
         public static final String CITY_IS_NULL_MESSAGE = "{CITY_IS_NULL}";
         public static final String HOUSE_NUMBER_IS_NULL_MESSAGE = "{HOUSE_NUMBER_IS_NULL}";
+        public static final String USER_TYPE_NOT_SUPPORTED_MESSAGE = "{USER_TYPE_NOT_SUPPORTED}";
+        public static final String DATES_ARE_NOT_VALID_MESSAGE = "{DATES_ARE_NOT_VALID}";
         public static final String STORAGE_SIZE_IS_NULL_MESSAGE = "{STORAGE_SIZE_IS_NULL}";
         public static final String RAM_SIZE_IS_NULL_MESSAGE = "{RAM_SIZE_IS_NULL}";
         public static final String CPU_NUMBER_IS_NULL_MESSAGE = "{CPU_NUMBER_IS_NULL}";

@@ -1,8 +1,15 @@
 package com.example.vmrentalrest.endpoints;
 
+import com.example.vmrentalrest.dto.createuserdto.CreateClientDTO;
+import com.example.vmrentalrest.dto.createuserdto.CreateResourceManagerDTO;
+import com.example.vmrentalrest.dto.getuserdto.GetAdministratorDTO;
+import com.example.vmrentalrest.dto.getuserdto.GetClientDTO;
+import com.example.vmrentalrest.dto.getuserdto.GetResourceManagerDTO;
 import com.example.vmrentalrest.dto.getuserdto.GetUserDTO;
-import com.example.vmrentalrest.dto.createuserdto.CreateAdminDTO;
+import com.example.vmrentalrest.dto.createuserdto.CreateAdministratorDTO;
+import com.example.vmrentalrest.dto.updatedto.UpdateUserDTO;
 import com.example.vmrentalrest.managers.UserManager;
+import com.example.vmrentalrest.model.users.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,35 +26,42 @@ public class UserEndpoint {
     public List<GetUserDTO> getAllUsers(){
         return userManager.findAllUsers()
                 .stream()
-                .map(GetUserDTO::new)
+                .map(User::convertToDTO)
                 .toList();
     }
     @GetMapping("/{id}")
     public GetUserDTO getUserById(@PathVariable String id) {
-            return new GetUserDTO(userManager.findUserById(id));
+            return userManager.findUserById(id).convertToDTO();
     }
     @GetMapping("/getbyusername")
     public GetUserDTO getUserByUsername(@RequestParam String username) {
-        return new GetUserDTO(userManager.findByUsername(username));
+        return userManager.findByUsername(username).convertToDTO();
     }
     @GetMapping("/getbyusernamecontains/{username}")
     public List<GetUserDTO> getUsersByUsernameContains(@PathVariable String username) {
         return userManager.findAllByUsernameContainsIgnoreCase(username)
                 .stream()
-                .map(GetUserDTO::new)
+                .map(User::convertToDTO)
                 .toList();
     }
-    @PostMapping
-    public GetUserDTO createUser(@RequestBody GetUserDTO getUserDTO) {
-        return new GetUserDTO(userManager.createUser(getUserDTO.convertToUser(), getUserDTO.getUserType()));
-    }
+
     @PostMapping("/createadministrator")
-    public GetUserDTO createAdministrator(@RequestBody CreateAdminDTO createAdminDTO) {
-        return new GetUserDTO(userManager.createAdministrator(userDTO.convertToUser()));
+    public GetAdministratorDTO createAdministrator(@RequestBody CreateAdministratorDTO createAdministratorDTO) {
+        return new GetAdministratorDTO(userManager.createAdministrator(createAdministratorDTO.createAdministratorFromDTO()));
     }
+    @PostMapping("/createclient")
+    public GetClientDTO createClient(@RequestBody CreateClientDTO createClientDTO) {
+        return userManager.createClient(createClientDTO.createClientFromDTO()).convertToDTO();
+    }
+    @PostMapping("/createresourcemanager")
+    public GetResourceManagerDTO createResourceManager(@RequestBody CreateResourceManagerDTO createResourceManagerDTO) {
+        return userManager.createResourceManager(createResourceManagerDTO.createResourceManagerFromDTO()).convertToDTO();
+    }
+
+
     @PutMapping("/{id}")
-    public GetUserDTO updateUser(@PathVariable String id, @RequestBody GetUserDTO getUserDTO) {
-        return new GetUserDTO(userManager.updateUser(id, getUserDTO.convertToUser(), getUserDTO.getUserType()));
+    public GetUserDTO updateUser(@PathVariable String id, @RequestBody UpdateUserDTO updateUserDTO) {
+        return userManager.updateUser(id, updateUserDTO).convertToDTO();
     }
     @PatchMapping("/{id}/activate")
     public void activateUser(@PathVariable String id) {

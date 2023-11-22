@@ -11,7 +11,4 @@ public record UpdateUserDTO(String firstName,
                             String lastName,
                             String password,
                             String email,
-                            Address address
-) {
-
-}
+                            Address address) {}

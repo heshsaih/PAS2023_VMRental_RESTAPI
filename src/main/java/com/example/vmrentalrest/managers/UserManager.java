@@ -1,5 +1,6 @@
 package com.example.vmrentalrest.managers;
 
+import com.example.vmrentalrest.dto.updatedto.UpdateUserDTO;
 import com.example.vmrentalrest.exceptions.ErrorMessages;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DuplicateRecordException;
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.IllegalOperationException;
@@ -35,85 +36,25 @@ public class UserManager {
     private final RentRepository rentRepository;
 
     public Administrator createAdministrator(@Valid Administrator administrator) throws IllegalOperationException {
-        userRepository.save(administrator);
+        checkIfExistsAndSave(administrator);
         return administrator;
     }
     public ResourceManager createResourceManager(@Valid ResourceManager resourceManager) throws IllegalOperationException {
-        userRepository.save(resourceManager);
+        checkIfExistsAndSave(resourceManager);
         return resourceManager;
     }
     public Client createClient(@Valid Client client) throws IllegalOperationException {
-        userRepository.save(client);
+        checkIfExistsAndSave(client);
         return client;
-    }
-
-    public User createUser(@Valid User user, UserType userType) throws DuplicateRecordException, UnknownUserTypeException, InvalidUserException {
-      //  validator.validate(user).forEach(violation -> {
-     //       System.out.println(violation.getMessage());
-     //   });
-        if(userType == null){
-            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_IS_NULL_MESSAGE);
-        } else if(!isUserValid(user,userType)){
-            throw new InvalidUserException();
-        }
-        switch (userType) {
-            case ADMINISTRATOR -> {
-                Administrator administrator = new Administrator();
-                setUserProperties(administrator,user);
-                userRepository.save(administrator);
-                return administrator;
-            }
-            case CLIENT -> {
-                Client client = new Client();
-                setUserProperties(client,user);
-                client.setClientType(((Client) user).getClientType());
-                userRepository.save(client);
-                return client;
-            }
-            case RESOURCE_MANAGER -> {
-                ResourceManager resourceManager = new ResourceManager();
-                setUserProperties(resourceManager,user);
-                userRepository.save(resourceManager);
-                return resourceManager;
-
-            }
-            default -> throw new UnknownUserTypeException();
-        }
-    }
-    private boolean isUserValid(User user, UserType userType) {
-        try{
-            if(StringUtils.hasText(user.getUsername())
-                && StringUtils.hasText(user.getFirstName())
-                && StringUtils.hasText(user.getLastName())
-                && StringUtils.hasText(user.getAddress().getCity())
-                && StringUtils.hasText(user.getAddress().getStreet())
-                && StringUtils.hasText(user.getAddress().getHouseNumber())
-                && StringUtils.hasText(user.getUsername())){
-                switch (userType) {
-                    case ADMINISTRATOR, RESOURCE_MANAGER -> {
-                        return true;
-                    }
-                    case CLIENT -> {
-                        return ((Client) user).getClientType() != null;
-                    }
-                }
-            }
-        } catch (NullPointerException e){
-        }
-        return false;
     }
     public List<Rent> getActiveRents(String id) {
         return rentRepository.findRentsByUserIdAndEndLocalDateTimeIsAfter(id, LocalDateTime.now());
     }
-    private void setUserProperties(User nonAbstractUser,User user) throws DuplicateRecordException {
+    private void checkIfExistsAndSave(User user) throws DuplicateRecordException {
         if(userRepository.existsByUsername(user.getUsername())){
             throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_ALREADY_EXISTS_MESSAGE);
         }
-        nonAbstractUser.setUsername(user.getUsername());
-        nonAbstractUser.setActive(true);
-        nonAbstractUser.setAddress(user.getAddress());
-        nonAbstractUser.setFirstName(user.getFirstName());
-        nonAbstractUser.setLastName(user.getLastName());
+        userRepository.save(user);
     }
 
     public List<User> findAllUsers() {
@@ -123,25 +64,17 @@ public class UserManager {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
-    public User updateUser(String id, User user) throws UserNotFoundException {
+    public User updateUser(String id, UpdateUserDTO user) throws UserNotFoundException {
 
         var userOpt = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        if(user.getFirstName() != null
-                && StringUtils.hasText(user.getFirstName())){
-            userOpt.setFirstName(user.getFirstName());
+        if(user.firstName() != null){
+            userOpt.setFirstName(user.firstName());
         }
-        if(user.getLastName() != null
-                && StringUtils.hasText(user.getLastName())){
-            userOpt.setLastName(user.getLastName());
+        if(user.lastName() != null){
+            userOpt.setLastName(user.lastName());
         }
-        if(user.getAddress() != null
-                && user.getAddress().getCity() != null
-                && StringUtils.hasText(user.getAddress().getCity())
-                && user.getAddress().getStreet() != null
-                && StringUtils.hasText(user.getAddress().getStreet())
-                && user.getAddress().getHouseNumber() != null
-                && StringUtils.hasText(user.getAddress().getHouseNumber())) {
-            userOpt.setAddress(user.getAddress());
+        if(user.address() != null) {
+            userOpt.setAddress(user.address());
         }
         userRepository.save(userOpt);
         return userOpt;

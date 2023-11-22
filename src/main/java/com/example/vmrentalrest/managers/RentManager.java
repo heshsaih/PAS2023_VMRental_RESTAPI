@@ -1,10 +1,8 @@
 package com.example.vmrentalrest.managers;
 
 
-import com.example.vmrentalrest.exceptions.illegalOperationExceptions.CantDeleteRentException;
-import com.example.vmrentalrest.exceptions.illegalOperationExceptions.ClientHasTooManyRentsException;
-import com.example.vmrentalrest.exceptions.illegalOperationExceptions.UserIsNotActiveException;
-import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DeviceAlreadyRentedException;
+import com.example.vmrentalrest.exceptions.ErrorMessages;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.*;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.RentNotFoundException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.UserNotFoundException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.VirtualDeviceNotFoundException;
@@ -32,16 +30,16 @@ public class RentManager {
     private final UserRepository userRepository;
     private final VirtualDeviceRepository virtualDeviceRepository;
 
-    public Rent createRent(Rent rent) throws DeviceAlreadyRentedException, ClientHasTooManyRentsException, UserIsNotActiveException, UserNotFoundException, InvalidRentException {
+    public Rent createRent(Rent rent) throws DeviceAlreadyRentedException, ClientHasTooManyRentsException, UserIsNotActiveException, UserNotFoundException {
         if(rent == null) {
-            throw new InvalidRentException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
         }
         if(rent.getUserId() == null
                 || rent.getVirtualDeviceId() == null
                 || rent.getStartLocalDateTime() == null
                 || rent.getEndLocalDateTime() == null
                 || rent.getStartLocalDateTime().isAfter(rent.getStartLocalDateTime())) {
-            throw new InvalidRentException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
         }
         Client client = (Client) userManager.findUserById(rent.getUserId());
         VirtualDevice virtualDevice = virtualDeviceRepository.findById(rent.getVirtualDeviceId()).orElseThrow(VirtualDeviceNotFoundException::new);
@@ -80,9 +78,9 @@ public class RentManager {
         return rentRepository.findById(id).orElseThrow(RentNotFoundException::new);
     }
 
-    public Rent updateRent(String rentId,Rent rent) throws RentNotFoundException, CantUpdateRentException, InvalidRentException, InvalidDatesException {
+    public Rent updateRent(String rentId,Rent rent) throws RentNotFoundException {
         if(rent == null) {
-            throw new InvalidRentException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
         }
         var value = rentRepository.findById(rentId).orElseThrow(RentNotFoundException::new);
         //if(rent.getUserId() != null) value.setUserId(rent.getUserId());
@@ -90,10 +88,10 @@ public class RentManager {
         if(rent.getStartLocalDateTime() != null) value.setStartLocalDateTime(rent.getStartLocalDateTime());
         if(rent.getEndLocalDateTime() != null) value.setEndLocalDateTime(rent.getEndLocalDateTime());
         if(value.getStartLocalDateTime().isAfter(value.getEndLocalDateTime())) {
-            throw new InvalidDatesException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.DATES_ARE_NOT_VALID_MESSAGE);
         }
         if(willVirtualDeviceBeRented(value)) {
-            throw new CantUpdateRentException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.DEVICE_ALREADY_RENTED_MESSAGE);
         }
         rentRepository.save(value);
         return value;

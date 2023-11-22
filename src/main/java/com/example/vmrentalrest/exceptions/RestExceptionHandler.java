@@ -1,7 +1,6 @@
 package com.example.vmrentalrest.exceptions;
 
 import com.example.vmrentalrest.exceptions.illegalOperationExceptions.IllegalOperationException;
-import com.example.vmrentalrest.exceptions.invalidParametersExceptions.InvalidParametersException;
 import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.RecordNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

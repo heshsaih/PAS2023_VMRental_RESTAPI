@@ -1,5 +1,7 @@
 package com.example.vmrentalrest.dto;
 
+import com.example.vmrentalrest.exceptions.ErrorMessages;
+import com.example.vmrentalrest.exceptions.illegalOperationExceptions.IllegalOperationException;
 import com.example.vmrentalrest.model.enums.DatabaseType;
 import com.example.vmrentalrest.model.enums.OperatingSystemType;
 import com.example.vmrentalrest.model.enums.VirtualDeviceType;
@@ -33,7 +35,7 @@ public class VirtualDeviceDTO {
             this.virtualDeviceType = VirtualDeviceType.VIRTUAL_PHONE;
             this.phoneNumber = ((VirtualPhone) virtualDevice).getPhoneNumber();
         } else {
-            throw new UnknownVirtualDeviceTypeException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
         }
         this.storageSize = virtualDevice.getStorageSize();
         this.cpuCores = virtualDevice.getCpuCores();
@@ -43,7 +45,7 @@ public class VirtualDeviceDTO {
 
     public VirtualDevice convertToVirtualDevice(){
         if(this.virtualDeviceType == null) {
-            throw new UnknownVirtualDeviceTypeException();
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
         }
         switch (this.virtualDeviceType) {
             case VIRTUAL_DATABASE_SERVER -> {
@@ -70,7 +72,7 @@ public class VirtualDeviceDTO {
                 virtualPhone.setPhoneNumber(this.phoneNumber);
                 return virtualPhone;
             }
-            default -> throw new UnknownVirtualDeviceTypeException();
+            default -> throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_TYPE_NOT_SUPPORTED_MESSAGE);
         }
 
     }

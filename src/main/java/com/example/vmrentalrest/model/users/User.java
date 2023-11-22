@@ -1,5 +1,6 @@
 package com.example.vmrentalrest.model.users;
 
+import com.example.vmrentalrest.dto.getuserdto.GetUserDTO;
 import com.example.vmrentalrest.exceptions.ErrorMessages;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
@@ -37,5 +38,5 @@ public abstract class User {
     private boolean active;
     @NotNull(message = ErrorMessages.BadRequestErrorMessages.ADDRESS_IS_NULL_MESSAGE)
     private Address address;
-
+    public abstract GetUserDTO convertToDTO();
 }
