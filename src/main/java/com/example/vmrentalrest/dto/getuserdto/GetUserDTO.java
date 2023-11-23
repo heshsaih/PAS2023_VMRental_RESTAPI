@@ -1,8 +1,5 @@
 package com.example.vmrentalrest.dto.getuserdto;
 
-import com.example.vmrentalrest.exceptions.ErrorMessages;
-import com.example.vmrentalrest.exceptions.illegalOperationExceptions.IllegalOperationException;
-import com.example.vmrentalrest.model.enums.ClientType;
 import com.example.vmrentalrest.model.enums.UserType;
 import com.example.vmrentalrest.model.users.*;
 import lombok.*;

@@ -17,7 +17,7 @@ import java.util.List;
 @Document
 public class Client extends User {
 
-    //@NotNull(message = ErrorMessages.BadRequestErrorMessages.CLIENT_TYPE_IS_NULL_MESSAGE)
+    @NotNull(message = ErrorMessages.BadRequestErrorMessages.CLIENT_TYPE_IS_NULL_MESSAGE)
     private ClientType clientType;
 
     @Override

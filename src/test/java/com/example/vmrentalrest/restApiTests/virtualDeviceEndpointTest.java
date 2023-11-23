@@ -1,7 +1,6 @@
 package com.example.vmrentalrest.restApiTests;
 
 import com.example.vmrentalrest.DBManagementTools;
-import com.example.vmrentalrest.dto.VirtualDeviceDTO;
 import com.example.vmrentalrest.endpoints.VirtualDeviceEndpoint;
 import com.example.vmrentalrest.managers.VirtualDeviceManager;
 import com.example.vmrentalrest.model.enums.DatabaseType;

@@ -3,10 +3,8 @@ package com.example.vmrentalrest.dto.getuserdto;
 import com.example.vmrentalrest.model.enums.ClientType;
 import com.example.vmrentalrest.model.enums.UserType;
 import com.example.vmrentalrest.model.users.Client;
-import com.example.vmrentalrest.model.users.User;
 import lombok.Getter;
 import lombok.Setter;
-
 @Getter
 @Setter
 public class GetClientDTO extends GetUserDTO {
