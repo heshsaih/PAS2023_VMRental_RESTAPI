@@ -1,7 +1,11 @@
 package com.example.vmrentalrest.restApiTests;
 
 import com.example.vmrentalrest.DBManagementTools;
+import com.example.vmrentalrest.dto.createuserdto.CreateAdministratorDTO;
+import com.example.vmrentalrest.dto.createuserdto.CreateClientDTO;
+import com.example.vmrentalrest.dto.createuserdto.CreateResourceManagerDTO;
 import com.example.vmrentalrest.dto.getuserdto.GetUserDTO;
+import com.example.vmrentalrest.dto.updatedto.UpdateUserDTO;
 import com.example.vmrentalrest.endpoints.UserEndpoint;
 import com.example.vmrentalrest.managers.UserManager;
 import com.example.vmrentalrest.model.enums.ClientType;
@@ -164,17 +168,15 @@ public class userEndpointTest {
         address.setCity("Lodz");
         address.setStreet("Aleje Politechniki");
         address.setHouseNumber("6/7");
-        GetUserDTO userClient = new GetUserDTO();
-        userClient.setUserType(UserType.CLIENT);
+        CreateClientDTO userClient = new CreateClientDTO();
         userClient.setUsername("test");
         userClient.setFirstName("test");
         userClient.setLastName("test");
         userClient.setAddress(address);
         userClient.setClientType(ClientType.SILVER);
-        userClient.setActiveRents(null);
 
         String json = objectMapper.writeValueAsString(userClient);
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/users/createclient")
                 .content(json)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
@@ -185,7 +187,7 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$.address.street").value(userClient.getAddress().getStreet()))
                 .andExpect(jsonPath("$.address.houseNumber").value(userClient.getAddress().getHouseNumber()))
                 .andExpect(jsonPath("$.clientType").value(userClient.getClientType().toString()));
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/users/createclient")
                 .content(json)
                 .contentType("application/json"))
                 .andExpect(status().isBadRequest());
@@ -193,15 +195,13 @@ public class userEndpointTest {
         address2.setCity("Olsztyn");
         address2.setStreet("Narutowicza");
         address2.setHouseNumber("7");
-        GetUserDTO userAdministrator = new GetUserDTO();
-        userAdministrator.setUserType(UserType.ADMINISTRATOR);
+        CreateAdministratorDTO userAdministrator = new CreateAdministratorDTO();
         userAdministrator.setUsername("test2");
         userAdministrator.setFirstName("test2");
         userAdministrator.setLastName("test2");
-        userAdministrator.setActive(true);
         userAdministrator.setAddress(address2);
         String json2 = objectMapper.writeValueAsString(userAdministrator);
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/users/createadministrator")
                 .content(json2)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
@@ -211,27 +211,24 @@ public class userEndpointTest {
                 .andExpect(jsonPath("$.address.city").value(userAdministrator.getAddress().getCity()))
                 .andExpect(jsonPath("$.address.street").value(userAdministrator.getAddress().getStreet()))
                 .andExpect(jsonPath("$.address.houseNumber").value(userAdministrator.getAddress().getHouseNumber()))
-                .andExpect(jsonPath("$.active").value(userAdministrator.isActive()))
                 .andExpect(jsonPath("$.clientType").doesNotExist());
         Address address3 = new Address();
         address3.setCity("Warszawa");
         address3.setStreet("Marszalkowska");
         address3.setHouseNumber("1");
-        GetUserDTO userResourceManager = new GetUserDTO();
-        userResourceManager.setUserType(UserType.RESOURCE_MANAGER);
+        CreateResourceManagerDTO userResourceManager = new CreateResourceManagerDTO();
         userResourceManager.setUsername("test2");
         userResourceManager.setFirstName("test2");
         userResourceManager.setLastName("test2");
-        userResourceManager.setActive(true);
         userResourceManager.setAddress(address3);
         String json3 = objectMapper.writeValueAsString(userResourceManager);
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/users/createresourcemanager")
                 .content(json3)
                 .contentType("application/json"))
                 .andExpect(status().isBadRequest());
         userResourceManager.setLastName(null);
         String json4 = objectMapper.writeValueAsString(userResourceManager);
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/users/createresourcemanager")
                 .content(json4)
                 .contentType("application/json"))
                 .andExpect(status().isBadRequest());
@@ -241,34 +238,30 @@ public class userEndpointTest {
     void updateUserTest() throws Exception {
         dbManagementTools.createData();
         Client client = (Client) userManager.findAllUsers().get(0);
-        GetUserDTO userClient = new GetUserDTO();
-        userClient.setUserType(UserType.CLIENT);
-        userClient.setFirstName("test212121");
-        userClient.setLastName("test77777");
-        userClient.setClientType(ClientType.SILVER);
+        UpdateUserDTO userClient = new UpdateUserDTO("test212121","test77777",null,null,null);
         String json = objectMapper.writeValueAsString(userClient);
         mockMvc.perform(put("/users/{id}",client.getId())
                 .content(json)
                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(client.getUsername()))
-                .andExpect(jsonPath("$.firstName").value(userClient.getFirstName()))
-                .andExpect(jsonPath("$.lastName").value(userClient.getLastName()))
+                .andExpect(jsonPath("$.firstName").value(userClient.firstName()))
+                .andExpect(jsonPath("$.lastName").value(userClient.lastName()))
                 .andExpect(jsonPath("$.address.city").value(client.getAddress().getCity()))
                 .andExpect(jsonPath("$.address.street").value(client.getAddress().getStreet()))
-                .andExpect(jsonPath("$.address.houseNumber").value(client.getAddress().getHouseNumber()))
-                .andExpect(jsonPath("$.clientType").value(userClient.getClientType().toString()));
+                .andExpect(jsonPath("$.address.houseNumber").value(client.getAddress().getHouseNumber()));
         mockMvc.perform(put("/users/{id}","123")
                 .content(json)
                 .contentType("application/json"))
                 .andExpect(status().isNotFound());
-        userClient.setUserType(null);
-        String json2 = objectMapper.writeValueAsString(userClient);
+        UpdateUserDTO userClient2 = new UpdateUserDTO("te","t",null,null,null);
+        String json2 = objectMapper.writeValueAsString(userClient2);
         mockMvc.perform(put("/users/{id}",client.getId())
                 .content(json2)
                 .contentType("application/json"))
                 .andExpect(status().isBadRequest());
     }
+
     @Test
     @Transactional
     void activateAndDeactivateUserTest() throws Exception {

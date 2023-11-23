@@ -33,8 +33,11 @@ public class ErrorMessages {
         public static final String END_DATE_IS_NULL_MESSAGE = "{END_DATE_IS_NULL}";
         public static final String CANT_DELETE_RENT_MESSAGE = "{CANT_DELETE_RENT}";
         public static final String INVALID_DATES_MESSAGE = "{INVALID_DATES}";
-
+        public static final String USER_IS_NOT_A_CLIENT_MESSAGE = "{USER_IS_NOT_A_CLIENT}";
         public static final String BODY_IS_NULL_MESSAGE = "{BODY_IS_NULL}";
+        public static final String VIRTUAL_DEVICE_IS_NOT_A_VIRTUAL_PHONE_MESSAGE = "{VIRTUAL_DEVICE_IS_NOT_A_VIRTUAL_PHONE}";
+        public static final String VIRTUAL_DEVICE_IS_NOT_A_VIRTUAL_MACHINE_MESSAGE = "{VIRTUAL_DEVICE_IS_NOT_A_VIRTUAL_MACHINE}";
+        public static final String VIRTUAL_DEVICE_IS_NOT_A_VIRTUAL_DATABASE_SERVER_MESSAGE = "{VIRTUAL_DEVICE_IS_NOT_A_VIRTUAL_DATABASE_SERVER}";
 
     }
 

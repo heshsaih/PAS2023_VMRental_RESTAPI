@@ -5,6 +5,9 @@ import com.example.vmrentalrest.dto.updatedto.UpdateVirtualDeviceDTO;
 import com.example.vmrentalrest.exceptions.ErrorMessages;
 import com.example.vmrentalrest.exceptions.RecordNotFoundException;
 import com.example.vmrentalrest.exceptions.IllegalOperationException;
+import com.example.vmrentalrest.model.enums.DatabaseType;
+import com.example.vmrentalrest.model.enums.OperatingSystemType;
+import com.example.vmrentalrest.model.users.Client;
 import com.example.vmrentalrest.model.virtualdevices.VirtualDatabaseServer;
 import com.example.vmrentalrest.model.virtualdevices.VirtualDevice;
 import com.example.vmrentalrest.model.virtualdevices.VirtualMachine;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.plaf.PanelUI;
 import java.util.List;
 
 @Component
@@ -64,6 +68,35 @@ public class VirtualDeviceManager {
         customValidator.validate(value);
         virtualDeviceRepository.save(value);
         return value;
+    }
+
+    public void updateDatabaseType(String id, DatabaseType databaseType) {
+        var virtualDevice = findVirtualDeviceById(id);
+        if(virtualDevice instanceof VirtualDatabaseServer) {
+            ((VirtualDatabaseServer) virtualDevice).setDatabaseType(databaseType);
+            virtualDeviceRepository.save(virtualDevice);
+            return;
+        }
+        throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.VIRTUAL_DEVICE_IS_NOT_A_VIRTUAL_DATABASE_SERVER_MESSAGE);
+    }
+    public void updateOperatingSystemType(String id, OperatingSystemType operatingSystemType) {
+        var virtualDevice = findVirtualDeviceById(id);
+        if(virtualDevice instanceof VirtualMachine) {
+            ((VirtualMachine) virtualDevice).setOperatingSystemType(operatingSystemType);
+            virtualDeviceRepository.save(virtualDevice);
+            return;
+        }
+        throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.VIRTUAL_DEVICE_IS_NOT_A_VIRTUAL_MACHINE_MESSAGE);
+    }
+
+    public void updatePhoneNumber(String id, int phoneNumber) {
+        var virtualDevice = findVirtualDeviceById(id);
+        if(virtualDevice instanceof VirtualPhone) {
+            ((VirtualPhone) virtualDevice).setPhoneNumber(phoneNumber);
+            virtualDeviceRepository.save(virtualDevice);
+            return;
+        }
+        throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.VIRTUAL_DEVICE_IS_NOT_A_VIRTUAL_PHONE_MESSAGE);
     }
     public void deleteVirtualDevice(String id) {
         if(rentRepository.findAll().stream().anyMatch(rent -> rent.getVirtualDeviceId().equals(id))) {

@@ -5,6 +5,7 @@ import com.example.vmrentalrest.dto.updatedto.UpdateUserDTO;
 import com.example.vmrentalrest.exceptions.ErrorMessages;
 import com.example.vmrentalrest.exceptions.RecordNotFoundException;
 import com.example.vmrentalrest.exceptions.IllegalOperationException;
+import com.example.vmrentalrest.model.enums.ClientType;
 import com.example.vmrentalrest.model.users.Administrator;
 import com.example.vmrentalrest.model.users.Client;
 import com.example.vmrentalrest.model.Rent;
@@ -43,7 +44,11 @@ public class UserManager {
         return client;
     }
     public List<Rent> getActiveRents(String id) {
-        return rentRepository.findRentsByUserIdAndEndLocalDateTimeIsAfter(id, LocalDateTime.now());
+        var client = findUserById(id);
+        if(client instanceof Client) {
+            return rentRepository.findRentsByUserIdAndEndLocalDateTimeIsAfter(id,LocalDateTime.now());
+        }
+        throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_IS_NOT_A_CLIENT_MESSAGE);
     }
     private void checkIfExistsAndValidAndSave(User user) {
         if(userRepository.existsByUsername(user.getUsername())){
@@ -86,6 +91,7 @@ public class UserManager {
         userRepository.save(userOpt);
         return userOpt;
     }
+
     public void setActive(String id) {
         var value = userRepository.findById(id).orElseThrow(
                 () -> new RecordNotFoundException(ErrorMessages.NotFoundErrorMessages.USER_NOT_FOUND_MESSAGE));
@@ -94,6 +100,7 @@ public class UserManager {
                 userRepository.save(value);
             }
     }
+
     public void setInactive(String id) {
         var value = userRepository.findById(id).orElseThrow(
                 () -> new RecordNotFoundException(ErrorMessages.NotFoundErrorMessages.USER_NOT_FOUND_MESSAGE));
@@ -102,6 +109,7 @@ public class UserManager {
                 userRepository.save(value);
             }
     }
+
     public User findByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(
                 () -> new RecordNotFoundException(ErrorMessages.NotFoundErrorMessages.USER_NOT_FOUND_MESSAGE));
@@ -109,8 +117,14 @@ public class UserManager {
     public ArrayList<User> findAllByUsernameContainsIgnoreCase(String username) {
         return userRepository.findAllByUsernameContainsIgnoreCase(username);
     }
-    public ArrayList<Rent> findUserActiveRents(String userID) {
-        return rentRepository.findRentsByUserIdAndEndLocalDateTimeIsAfter(userID,LocalDateTime.now());
-    }
 
+    public void updateClientType(String id, ClientType clientType) {
+        var client = findUserById(id);
+        if(client instanceof Client) {
+            ((Client) client).setClientType(clientType);
+            userRepository.save(client);
+            return;
+        }
+        throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_IS_NOT_A_CLIENT_MESSAGE);
+    }
 }

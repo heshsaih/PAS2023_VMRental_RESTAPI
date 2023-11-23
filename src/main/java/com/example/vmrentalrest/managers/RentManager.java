@@ -2,6 +2,7 @@ package com.example.vmrentalrest.managers;
 
 
 import com.example.vmrentalrest.CustomValidator;
+import com.example.vmrentalrest.dto.updatedto.UpdateRentDTO;
 import com.example.vmrentalrest.exceptions.ErrorMessages;
 import com.example.vmrentalrest.exceptions.IllegalOperationException;
 import com.example.vmrentalrest.exceptions.RecordNotFoundException;
@@ -78,17 +79,17 @@ public class RentManager {
                 () -> new RecordNotFoundException(ErrorMessages.NotFoundErrorMessages.RENT_NOT_FOUND_MESSAGE));
     }
 
-    public Rent updateRent(String rentId,Rent rent) {
-        if(rent == null) {
+    public Rent updateRent(String rentId, UpdateRentDTO updateRentDTO) {
+        if(updateRentDTO == null) {
             throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.BODY_IS_NULL_MESSAGE);
         }
         var value = rentRepository.findById(rentId).orElseThrow(
                 () -> new RecordNotFoundException(ErrorMessages.NotFoundErrorMessages.RENT_NOT_FOUND_MESSAGE));
-        if(rent.getStartLocalDateTime() != null) {
-            value.setStartLocalDateTime(rent.getStartLocalDateTime());
+        if(updateRentDTO.startLocalDateTime() != null) {
+            value.setStartLocalDateTime(updateRentDTO.startLocalDateTime());
         }
-        if(rent.getEndLocalDateTime() != null) {
-            value.setEndLocalDateTime(rent.getEndLocalDateTime());
+        if(updateRentDTO.endLocalDateTime() != null) {
+            value.setEndLocalDateTime(updateRentDTO.endLocalDateTime());
         }
         if(value.getStartLocalDateTime().isAfter(value.getEndLocalDateTime())) {
             throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.DATES_ARE_NOT_VALID_MESSAGE);

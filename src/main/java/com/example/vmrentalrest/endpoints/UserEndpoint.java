@@ -8,7 +8,10 @@ import com.example.vmrentalrest.dto.getuserdto.GetResourceManagerDTO;
 import com.example.vmrentalrest.dto.getuserdto.GetUserDTO;
 import com.example.vmrentalrest.dto.createuserdto.CreateAdministratorDTO;
 import com.example.vmrentalrest.dto.updatedto.UpdateUserDTO;
+import com.example.vmrentalrest.managers.RentManager;
 import com.example.vmrentalrest.managers.UserManager;
+import com.example.vmrentalrest.model.Rent;
+import com.example.vmrentalrest.model.enums.ClientType;
 import com.example.vmrentalrest.model.users.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -62,6 +65,14 @@ public class UserEndpoint {
     @PutMapping("/{id}")
     public GetUserDTO updateUser(@PathVariable String id, @RequestBody UpdateUserDTO updateUserDTO) {
         return userManager.updateUser(id, updateUserDTO).convertToDTO();
+    }
+    @PatchMapping("/{id}/updateclienttype")
+    public void updateClientType(@PathVariable String id, @RequestParam ClientType clientType) {
+        userManager.updateClientType(id, clientType);
+    }
+    @GetMapping("/{id}/getactiverents")
+    public List<Rent> getActiveRents(@PathVariable String id) {
+        return userManager.getActiveRents(id);
     }
     @PatchMapping("/{id}/activate")
     public void activateUser(@PathVariable String id) {

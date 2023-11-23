@@ -1,5 +1,6 @@
 package com.example.vmrentalrest.endpoints;
 
+import com.example.vmrentalrest.dto.updatedto.UpdateRentDTO;
 import com.example.vmrentalrest.managers.RentManager;
 import com.example.vmrentalrest.model.Rent;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +36,8 @@ public class RentEndpoint {
     }
 
     @PutMapping("/{id}")
-    public Rent updateRent(@PathVariable String id, @RequestBody Rent rent) {
-        return rentManager.updateRent(id,rent);
+    public Rent updateRent(@PathVariable String id, @RequestBody UpdateRentDTO updateRentDTO) {
+        return rentManager.updateRent(id,updateRentDTO);
     }
     @DeleteMapping("/{id}")
     public void deleteRent(@PathVariable String id) {

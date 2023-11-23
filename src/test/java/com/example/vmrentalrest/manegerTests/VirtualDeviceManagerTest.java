@@ -1,8 +1,9 @@
 package com.example.vmrentalrest.manegerTests;
 
 import com.example.vmrentalrest.DBManagementTools;
-import com.example.vmrentalrest.exceptions.illegalOperationExceptions.DeviceHasAllocationException;
-import com.example.vmrentalrest.exceptions.recordNotFoundExceptions.VirtualDeviceNotFoundException;
+import com.example.vmrentalrest.dto.updatedto.UpdateVirtualDeviceDTO;
+import com.example.vmrentalrest.exceptions.IllegalOperationException;
+import com.example.vmrentalrest.exceptions.RecordNotFoundException;
 import com.example.vmrentalrest.managers.VirtualDeviceManager;
 import com.example.vmrentalrest.model.enums.DatabaseType;
 import com.example.vmrentalrest.model.enums.OperatingSystemType;
@@ -25,59 +26,33 @@ public class VirtualDeviceManagerTest {
     VirtualDeviceManager virtualDeviceManager;
     @Autowired
     DBManagementTools dbManagementTools;
-    private void addVirtualDevices() throws InvalidVirtualDeviceException {
+    private void addVirtualDevices() {
         dbManagementTools.createData();
     }
     @Test
     @Transactional
-    void createVirtualDeviceTest() throws InvalidVirtualDeviceException{
-        addVirtualDevices();
-        int buffer = virtualDeviceManager.findAllVirtualDevices().size();
-        VirtualDatabaseServer virtualDatabaseServer = new VirtualDatabaseServer();
-        virtualDatabaseServer.setCpuCores(16);
-        virtualDatabaseServer.setRam(64);
-        virtualDatabaseServer.setDatabaseType(DatabaseType.MONGODB);
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.createVirtualDevice(virtualDatabaseServer, VirtualDeviceType.VIRTUAL_DATABASE_SERVER))
-                .isInstanceOf(InvalidVirtualDeviceException.class);
-        VirtualMachine virtualMachine = new VirtualMachine();
-        virtualMachine.setCpuCores(8);
-        virtualMachine.setRam(32);
-        virtualMachine.setStorageSize(1024);
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.createVirtualDevice(virtualMachine, VirtualDeviceType.VIRTUAL_MACHINE))
-                .isInstanceOf(InvalidVirtualDeviceException.class);
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.createVirtualDevice(null, null))
-                .isInstanceOf(InvalidVirtualDeviceException.class);
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.createVirtualDevice(null, VirtualDeviceType.VIRTUAL_MACHINE))
-                .isInstanceOf(InvalidVirtualDeviceException.class);
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.createVirtualDevice(virtualMachine, null))
-                .isInstanceOf(InvalidVirtualDeviceException.class);
-        Assertions.assertThat(virtualDeviceManager.findAllVirtualDevices().size() == buffer).isTrue();
-
-    }
-    @Test
-    @Transactional
-    void findAllVirtualDeviceTest() throws InvalidVirtualDeviceException {
+    void findAllVirtualDeviceTest() {
         int virtualDeviceBuffer = virtualDeviceManager.findAllVirtualDevices().size();
         addVirtualDevices();
         Assertions.assertThat(virtualDeviceBuffer + 3 == virtualDeviceManager.findAllVirtualDevices().size()).isTrue();
     }
     @Test
     @Transactional
-    void deleteVirtualDeviceTest() throws InvalidVirtualDeviceException, VirtualDeviceNotFoundException, DeviceHasAllocationException {
+    void deleteVirtualDeviceTest() {
         addVirtualDevices();
         int virtualDeviceBuffer = virtualDeviceManager.findAllVirtualDevices().size();
         String bufferedId = virtualDeviceManager.findAllVirtualDevices().get(0).getId();
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.deleteVirtualDevice(bufferedId)).isInstanceOf(DeviceHasAllocationException.class);
+        Assertions.assertThatThrownBy(() -> virtualDeviceManager.deleteVirtualDevice(bufferedId)).isInstanceOf(IllegalOperationException.class);
         Assertions.assertThat(virtualDeviceManager.findAllVirtualDevices().size() == virtualDeviceBuffer).isTrue();
         int virtualDeviceBuffer2 = virtualDeviceManager.findAllVirtualDevices().size();
         String bufferedId2 = virtualDeviceManager.findAllVirtualDevices().get(2).getId();
         virtualDeviceManager.deleteVirtualDevice(bufferedId2);
         Assertions.assertThat(virtualDeviceManager.findAllVirtualDevices().size() == virtualDeviceBuffer2 - 1).isTrue();
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.findVirtualDeviceById(bufferedId2)).isInstanceOf(VirtualDeviceNotFoundException.class);
+        Assertions.assertThatThrownBy(() -> virtualDeviceManager.findVirtualDeviceById(bufferedId2)).isInstanceOf(RecordNotFoundException.class);
     }
     @Test
     @Transactional
-    void getVirtualDeviceTest() throws InvalidVirtualDeviceException, VirtualDeviceNotFoundException {
+    void getVirtualDeviceTest() {
         addVirtualDevices();
         Assertions.assertThat(virtualDeviceManager.findAllVirtualDevices().get(0)
                 .equals(virtualDeviceManager.findVirtualDeviceById(virtualDeviceManager.findAllVirtualDevices().get(0).getId()))).isTrue();
@@ -85,54 +60,41 @@ public class VirtualDeviceManagerTest {
 
     @Test
     @Transactional
-    void updateVirtualDeviceTest() throws VirtualDeviceNotFoundException, InvalidVirtualDeviceException {
+    void updateVirtualDeviceTest() {
         addVirtualDevices();
-        VirtualDatabaseServer virtualDatabaseServer = new VirtualDatabaseServer();
-        virtualDatabaseServer.setCpuCores(24);
-        virtualDatabaseServer.setRam(32);
-        virtualDatabaseServer.setStorageSize(4096);
-        virtualDatabaseServer.setDatabaseType(DatabaseType.ORACLE);
+        UpdateVirtualDeviceDTO virtualDatabaseServer = new UpdateVirtualDeviceDTO(512,24,32);
+        virtualDeviceManager.updateVirtualDevice(virtualDeviceManager.findAllVirtualDevices().get(0).getId(),virtualDatabaseServer);
+        virtualDeviceManager.updateDatabaseType(virtualDeviceManager.findAllVirtualDevices().get(0).getId(),DatabaseType.ORACLE);
         var bufferedId1 = virtualDeviceManager.findAllVirtualDevices().get(0).getId();
         virtualDeviceManager.updateVirtualDevice(bufferedId1,virtualDatabaseServer);
         VirtualDatabaseServer virtualDatabaseServer1 = (VirtualDatabaseServer) virtualDeviceManager.findAllVirtualDevices().get(0);
         Assertions.assertThat(virtualDatabaseServer1.getCpuCores() == 24).isTrue();
         Assertions.assertThat(virtualDatabaseServer1.getRam() == 32).isTrue();
-        Assertions.assertThat(virtualDatabaseServer1.getStorageSize() == 4096).isTrue();
+        Assertions.assertThat(virtualDatabaseServer1.getStorageSize() == 512).isTrue();
         Assertions.assertThat((virtualDatabaseServer1.getDatabaseType() == DatabaseType.ORACLE)).isTrue();
-        VirtualMachine virtualMachine = new VirtualMachine();
-        virtualMachine.setCpuCores(16);
-        virtualMachine.setStorageSize(2048);
-        virtualMachine.setOperatingSystemType(OperatingSystemType.WINDOWS);
+        UpdateVirtualDeviceDTO virtualMachineDTO = new UpdateVirtualDeviceDTO(64,48,0);
         var bufferedId2 = virtualDeviceManager.findAllVirtualDevices().get(1).getId();
-        virtualDeviceManager.updateVirtualDevice(bufferedId2,virtualMachine);
+        virtualDeviceManager.updateOperatingSystemType(bufferedId2, OperatingSystemType.WINDOWS);
+        virtualDeviceManager.updateVirtualDevice(bufferedId2,virtualMachineDTO);
         VirtualMachine virtualMachine1 = (VirtualMachine) virtualDeviceManager.findAllVirtualDevices().get(1);
-        Assertions.assertThat(virtualMachine1.getCpuCores() == 16).isTrue();
-        Assertions.assertThat(virtualMachine1.getStorageSize() == 2048).isTrue();
+        Assertions.assertThat(virtualMachine1.getCpuCores() == 48).isTrue();
+        Assertions.assertThat(virtualMachine1.getStorageSize() == 64).isTrue();
         Assertions.assertThat((virtualMachine1.getOperatingSystemType() == OperatingSystemType.WINDOWS)).isTrue();
+        UpdateVirtualDeviceDTO virtualPhoneDTO = new UpdateVirtualDeviceDTO(-8,32,1024);
         VirtualPhone virtualPhone = new VirtualPhone();
+        UpdateVirtualDeviceDTO virtualPhone1 = new UpdateVirtualDeviceDTO(128,32,1024);
         virtualPhone.setCpuCores(8);
         virtualPhone.setRam(32);
         virtualPhone.setStorageSize(1024);
         virtualPhone.setPhoneNumber(987654321);
         var bufferedId3 = virtualDeviceManager.findAllVirtualDevices().get(2).getId();
-        virtualDeviceManager.updateVirtualDevice(bufferedId3,virtualPhone);
-        VirtualPhone virtualPhone1 = (VirtualPhone) virtualDeviceManager.findAllVirtualDevices().get(2);
-        Assertions.assertThat(virtualPhone1.getCpuCores() == 8).isTrue();
-        Assertions.assertThat(virtualPhone1.getRam() == 32).isTrue();
-        Assertions.assertThat(virtualPhone1.getStorageSize() == 1024).isTrue();
-        Assertions.assertThat((virtualPhone1.getPhoneNumber() == 987654321)).isTrue();
-        Assertions.assertThatThrownBy(() -> virtualDeviceManager.updateVirtualDevice("123",virtualPhone))
-                .isInstanceOf(VirtualDeviceNotFoundException.class);
-        VirtualPhone virtualPhone2 = new VirtualPhone();
-        virtualPhone2.setCpuCores(-8);
-        virtualPhone2.setRam(32);
-        virtualPhone2.setStorageSize(1024);
-        virtualDeviceManager.updateVirtualDevice(bufferedId3,virtualPhone2);
+        virtualDeviceManager.updateVirtualDevice(bufferedId3,virtualPhone1);
+        UpdateVirtualDeviceDTO virtualPhone2 = new UpdateVirtualDeviceDTO(-8,32,1024);
+        virtualDeviceManager.updatePhoneNumber(bufferedId3,123456789);
         Assertions.assertThat(virtualDeviceManager.findVirtualDeviceById(bufferedId3).getCpuCores() == -8).isFalse();
-        VirtualMachine virtualMachine2 = new VirtualMachine();
-        virtualMachine2.setCpuCores(8);
-        virtualMachine2.setStorageSize(-2048);
-        virtualDeviceManager.updateVirtualDevice(bufferedId2,virtualMachine2);
+        UpdateVirtualDeviceDTO virtualMachine2 = new UpdateVirtualDeviceDTO(8,32,-1024);
+        Assertions.assertThatThrownBy(()->virtualDeviceManager.updateVirtualDevice(bufferedId2,virtualMachine2))
+                .isInstanceOf(IllegalOperationException.class);
         Assertions.assertThat(virtualDeviceManager.findVirtualDeviceById(bufferedId2).getStorageSize() == -2048).isFalse();
 
     }

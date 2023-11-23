@@ -1,6 +1,7 @@
 package com.example.vmrentalrest.restApiTests;
 
 import com.example.vmrentalrest.DBManagementTools;
+import com.example.vmrentalrest.dto.updatedto.UpdateVirtualDeviceDTO;
 import com.example.vmrentalrest.endpoints.VirtualDeviceEndpoint;
 import com.example.vmrentalrest.managers.VirtualDeviceManager;
 import com.example.vmrentalrest.model.enums.DatabaseType;
@@ -99,25 +100,22 @@ public class virtualDeviceEndpointTest {
     @Transactional
     void createVirtualDeviceTest() throws Exception {
         dbManagementTools.createData();
-        VirtualDeviceDTO virtualDatabaseServerDTO = new VirtualDeviceDTO();
-        virtualDatabaseServerDTO.setVirtualDeviceType(VirtualDeviceType.VIRTUAL_DATABASE_SERVER);
+        VirtualDatabaseServer virtualDatabaseServerDTO = new VirtualDatabaseServer();
         virtualDatabaseServerDTO.setCpuCores(24);
         virtualDatabaseServerDTO.setRam(32);
-        virtualDatabaseServerDTO.setStorageSize(4096);
+        virtualDatabaseServerDTO.setStorageSize(1024);
         virtualDatabaseServerDTO.setDatabaseType(DatabaseType.ORACLE);
-        VirtualDeviceDTO virtualMachineDTO = new VirtualDeviceDTO();
-        virtualMachineDTO.setVirtualDeviceType(VirtualDeviceType.VIRTUAL_MACHINE);
+        VirtualMachine virtualMachineDTO = new VirtualMachine();
         virtualMachineDTO.setCpuCores(16);
-        virtualMachineDTO.setStorageSize(2048);
+        virtualMachineDTO.setStorageSize(512);
         virtualMachineDTO.setRam(64);
         virtualMachineDTO.setOperatingSystemType(com.example.vmrentalrest.model.enums.OperatingSystemType.WINDOWS);
-        VirtualDeviceDTO virtualPhoneDTO = new VirtualDeviceDTO();
-        virtualPhoneDTO.setVirtualDeviceType(VirtualDeviceType.VIRTUAL_PHONE);
+        VirtualPhone virtualPhoneDTO = new VirtualPhone();
         virtualPhoneDTO.setCpuCores(8);
         virtualPhoneDTO.setRam(32);
         virtualPhoneDTO.setStorageSize(1024);
         virtualPhoneDTO.setPhoneNumber(987654321);
-        mockMvc.perform(post("/virtual-devices")
+        mockMvc.perform(post("/virtual-devices/createvirtual-database-server")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(virtualDatabaseServerDTO)))
                 .andExpect(status().isOk())
@@ -125,7 +123,7 @@ public class virtualDeviceEndpointTest {
                 .andExpect(jsonPath("$.ram").value(virtualDatabaseServerDTO.getRam()))
                 .andExpect(jsonPath("$.storageSize").value(virtualDatabaseServerDTO.getStorageSize()))
                 .andExpect(jsonPath("$.databaseType").value(virtualDatabaseServerDTO.getDatabaseType().toString()));
-        mockMvc.perform(post("/virtual-devices")
+        mockMvc.perform(post("/virtual-devices/createvirtual-database-server")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(virtualDatabaseServerDTO)))
                 .andExpect(status().isOk())
@@ -133,7 +131,7 @@ public class virtualDeviceEndpointTest {
                 .andExpect(jsonPath("$.ram").value(virtualDatabaseServerDTO.getRam()))
                 .andExpect(jsonPath("$.storageSize").value(virtualDatabaseServerDTO.getStorageSize()))
                 .andExpect(jsonPath("$.databaseType").value(virtualDatabaseServerDTO.getDatabaseType().toString()));
-        mockMvc.perform(post("/virtual-devices")
+        mockMvc.perform(post("/virtual-devices/createvirtual-machine")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(virtualMachineDTO)))
                 .andExpect(status().isOk())
@@ -141,7 +139,7 @@ public class virtualDeviceEndpointTest {
                 .andExpect(jsonPath("$.ram").value(virtualMachineDTO.getRam()))
                 .andExpect(jsonPath("$.storageSize").value(virtualMachineDTO.getStorageSize()))
                 .andExpect(jsonPath("$.operatingSystemType").value(virtualMachineDTO.getOperatingSystemType().toString()));
-        mockMvc.perform(post("/virtual-devices")
+        mockMvc.perform(post("/virtual-devices/createvirtual-phone")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(virtualPhoneDTO)))
                 .andExpect(status().isOk())
@@ -150,7 +148,7 @@ public class virtualDeviceEndpointTest {
                 .andExpect(jsonPath("$.storageSize").value(virtualPhoneDTO.getStorageSize()))
                 .andExpect(jsonPath("$.phoneNumber").value(virtualPhoneDTO.getPhoneNumber()));
         virtualMachineDTO.setCpuCores(-3);
-        mockMvc.perform(post("/virtual-devices")
+        mockMvc.perform(post("/virtual-devices/createvirtual-machine")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(virtualMachineDTO)))
                 .andExpect(status().isBadRequest());
@@ -159,46 +157,38 @@ public class virtualDeviceEndpointTest {
     @Transactional
     void updateVirtualDevice() throws Exception{
         dbManagementTools.createData();
-        VirtualDeviceDTO virtualDatabaseServerDTO = new VirtualDeviceDTO();
-        virtualDatabaseServerDTO.setVirtualDeviceType(VirtualDeviceType.VIRTUAL_DATABASE_SERVER);
-        virtualDatabaseServerDTO.setCpuCores(8);
-        virtualDatabaseServerDTO.setRam(16);
-        virtualDatabaseServerDTO.setStorageSize(1024);
-        virtualDatabaseServerDTO.setDatabaseType(DatabaseType.MYSQL);
+        UpdateVirtualDeviceDTO virtualDatabaseServerDTO = new UpdateVirtualDeviceDTO(1024,8,16);
         VirtualDatabaseServer virtualDatabaseServer = (VirtualDatabaseServer) virtualDeviceManager.findAllVirtualDevices().get(0);
         mockMvc.perform(put("/virtual-devices/" + virtualDatabaseServer.getId())
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(virtualDatabaseServerDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(virtualDatabaseServer.getId()))
-                .andExpect(jsonPath("$.cpuCores").value(virtualDatabaseServerDTO.getCpuCores()))
-                .andExpect(jsonPath("$.ram").value(virtualDatabaseServerDTO.getRam()))
-                .andExpect(jsonPath("$.storageSize").value(virtualDatabaseServerDTO.getStorageSize()))
-                .andExpect(jsonPath("$.databaseType").value(virtualDatabaseServerDTO.getDatabaseType().toString()));
-        Assertions.assertTrue(virtualDeviceManager.findVirtualDeviceById(virtualDatabaseServer.getId()).getCpuCores() == virtualDatabaseServerDTO.getCpuCores());
-        Assertions.assertTrue(virtualDeviceManager.findVirtualDeviceById(virtualDatabaseServer.getId()).getRam() == virtualDatabaseServerDTO.getRam());
-        Assertions.assertTrue(virtualDeviceManager.findVirtualDeviceById(virtualDatabaseServer.getId()).getStorageSize() == virtualDatabaseServerDTO.getStorageSize());
-        Assertions.assertTrue(((VirtualDatabaseServer) virtualDeviceManager.findVirtualDeviceById(virtualDatabaseServer.getId())).getDatabaseType().equals(virtualDatabaseServerDTO.getDatabaseType()));
+                .andExpect(jsonPath("$.cpuCores").value(virtualDatabaseServerDTO.cpuCores()))
+                .andExpect(jsonPath("$.ram").value(virtualDatabaseServerDTO.ram()))
+                .andExpect(jsonPath("$.storageSize").value(virtualDatabaseServerDTO.storageSize()));
+        Assertions.assertTrue(virtualDeviceManager.findVirtualDeviceById(virtualDatabaseServer.getId()).getCpuCores() == virtualDatabaseServerDTO.cpuCores());
+        Assertions.assertTrue(virtualDeviceManager.findVirtualDeviceById(virtualDatabaseServer.getId()).getRam() == virtualDatabaseServerDTO.ram());
+        Assertions.assertTrue(virtualDeviceManager.findVirtualDeviceById(virtualDatabaseServer.getId()).getStorageSize() == virtualDatabaseServerDTO.storageSize());
         mockMvc.perform(put("/virtual-devices/123")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(virtualDatabaseServerDTO)))
                 .andExpect(status().isNotFound());
         virtualDatabaseServer = (VirtualDatabaseServer) virtualDeviceManager.findAllVirtualDevices().get(0);
-        virtualDatabaseServerDTO.setCpuCores(-3);
-        virtualDatabaseServerDTO.setRam(-333);
+        UpdateVirtualDeviceDTO virtualDatabaseServerDTO2 = new UpdateVirtualDeviceDTO(-1024,-8,16);
         mockMvc.perform(put("/virtual-devices/" + virtualDatabaseServer.getId())
                 .contentType("application/json")
-                .content(objectMapper.writeValueAsString(virtualDatabaseServerDTO)))
+                .content(objectMapper.writeValueAsString(virtualDatabaseServerDTO2)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(virtualDatabaseServer.getId()))
                 .andExpect(jsonPath("$.cpuCores").value(virtualDatabaseServer.getCpuCores()))
                 .andExpect(jsonPath("$.ram").value(virtualDatabaseServer.getRam()))
                 .andExpect(jsonPath("$.storageSize").value(virtualDatabaseServer.getStorageSize()))
                 .andExpect(jsonPath("$.databaseType").value(virtualDatabaseServer.getDatabaseType().toString()));
-        virtualDatabaseServerDTO.setVirtualDeviceType(null);
+        UpdateVirtualDeviceDTO virtualDatabaseServerDTO3 = new UpdateVirtualDeviceDTO(32132132,-8,16);
         mockMvc.perform(put("/virtual-devices/" + virtualDatabaseServer.getId())
                 .contentType("application/json")
-                .content(objectMapper.writeValueAsString(virtualDatabaseServerDTO)))
+                .content(objectMapper.writeValueAsString(virtualDatabaseServerDTO3)))
                 .andExpect(status().isBadRequest());
 
     }

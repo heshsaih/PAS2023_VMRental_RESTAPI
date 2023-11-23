@@ -1,6 +1,7 @@
 package com.example.vmrentalrest.restApiTests;
 
 import com.example.vmrentalrest.DBManagementTools;
+import com.example.vmrentalrest.dto.updatedto.UpdateRentDTO;
 import com.example.vmrentalrest.endpoints.RentEndpoint;
 import com.example.vmrentalrest.managers.RentManager;
 import com.example.vmrentalrest.managers.UserManager;
@@ -181,8 +182,7 @@ public class rentEndpointTest {
     void updateRentTest() throws Exception {
         dbManagementTools.createData();
         Rent rent = rentManager.findAllRents().get(0);
-        rent.setStartLocalDateTime(LocalDateTime.now().plusWeeks(2));
-        rent.setEndLocalDateTime(LocalDateTime.now().plusWeeks(3));
+        UpdateRentDTO updateRentDTO = new UpdateRentDTO(LocalDateTime.now().plusWeeks(2),LocalDateTime.now().plusWeeks(3));
         mockMvc.perform(put("/rents/" + rent.getRentId())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(rent)))
@@ -194,15 +194,12 @@ public class rentEndpointTest {
                         .content(objectMapper.writeValueAsString(null)))
                 .andExpect(status().isBadRequest());
         Rent rent2 = rentManager.findAllRents().get(0);
-        rent2.setStartLocalDateTime(LocalDateTime.now().plusWeeks(2));
-        rent2.setEndLocalDateTime(LocalDateTime.now().plusWeeks(1));
+        UpdateRentDTO updateRentDTO2 = new UpdateRentDTO(LocalDateTime.now().minusWeeks(2),LocalDateTime.now().plusWeeks(1));
         mockMvc.perform(put("/rents/" + rent2.getRentId())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(rent2)))
                 .andExpect(status().isBadRequest());
         Rent rent3 = rentManager.findAllRents().get(0);
-        rent3.setStartLocalDateTime(LocalDateTime.now().minusWeeks(2));
-        rent3.setEndLocalDateTime(LocalDateTime.now().plusWeeks(3));
         mockMvc.perform(put("/rents/" + rent3.getRentId())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(rent3)))
