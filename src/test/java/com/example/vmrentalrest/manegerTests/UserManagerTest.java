@@ -153,6 +153,6 @@ public class UserManagerTest {
     void findAllByUsernameContainsIgnoreCase() throws DuplicateRecordException, UserNotFoundException, UnknownUserTypeException, InvalidUserException {
         addUsers();
         Assertions.assertThat(userManager.findAllByUsernameContainsIgnoreCase("Na").size() == 2).isTrue();
-        Assertions.assertThat(userManager.findAllByUsernameContainsIgnoreCase("notFound").size() == 0).isTrue();
+        Assertions.assertThat(userManager.findAllByUsernameContainsIgnoreCase("notFound").isEmpty()).isTrue();
     }
 }

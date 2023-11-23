@@ -1,7 +1,6 @@
 package com.example.vmrentalrest;
 
 
-import com.example.vmrentalrest.repositories.UserRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;

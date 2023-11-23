@@ -1,7 +1,6 @@
 package com.example.vmrentalrest.dto.createuserdto;
 
 import com.example.vmrentalrest.model.users.Administrator;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 

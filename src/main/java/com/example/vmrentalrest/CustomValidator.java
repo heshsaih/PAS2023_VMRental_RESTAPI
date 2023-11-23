@@ -15,7 +15,7 @@ public class CustomValidator {
             throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.BODY_IS_NULL_MESSAGE);
         }
         var violations = validator.validate(object);
-        if(violations.size() > 0) {
+        if(!violations.isEmpty()) {
             StringBuilder stringBuilder = new StringBuilder();
             violations.forEach(violation -> {
                 stringBuilder

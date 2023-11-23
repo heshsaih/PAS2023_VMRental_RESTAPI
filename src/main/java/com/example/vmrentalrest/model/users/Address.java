@@ -1,8 +1,6 @@
 package com.example.vmrentalrest.model.users;
 
 import com.example.vmrentalrest.exceptions.ErrorMessages;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 

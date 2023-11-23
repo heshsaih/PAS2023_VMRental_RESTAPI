@@ -12,7 +12,6 @@ import com.example.vmrentalrest.model.users.ResourceManager;
 import com.example.vmrentalrest.model.users.User;
 import com.example.vmrentalrest.repositories.RentRepository;
 import com.example.vmrentalrest.repositories.UserRepository;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;

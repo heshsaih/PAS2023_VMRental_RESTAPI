@@ -11,7 +11,6 @@ import com.example.vmrentalrest.model.virtualdevices.VirtualMachine;
 import com.example.vmrentalrest.model.virtualdevices.VirtualPhone;
 import com.example.vmrentalrest.repositories.RentRepository;
 import com.example.vmrentalrest.repositories.VirtualDeviceRepository;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;

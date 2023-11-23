@@ -1,10 +1,7 @@
 package com.example.vmrentalrest.dto.createuserdto;
 
-import com.example.vmrentalrest.exceptions.ErrorMessages;
 import com.example.vmrentalrest.model.enums.ClientType;
 import com.example.vmrentalrest.model.users.Client;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
