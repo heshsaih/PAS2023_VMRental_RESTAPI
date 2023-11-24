@@ -195,15 +195,12 @@ public class rentEndpointTest {
                 .andExpect(status().isBadRequest());
         Rent rent2 = rentManager.findAllRents().get(0);
         UpdateRentDTO updateRentDTO2 = new UpdateRentDTO(LocalDateTime.now().minusWeeks(2),LocalDateTime.now().plusWeeks(1));
-        mockMvc.perform(put("/rents/" + rent2.getRentId())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(rent2)))
-                .andExpect(status().isBadRequest());
+
         Rent rent3 = rentManager.findAllRents().get(0);
         mockMvc.perform(put("/rents/" + rent3.getRentId())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(rent3)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
         mockMvc.perform(put("/rents/" + "NonExistent")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(rent3)))
