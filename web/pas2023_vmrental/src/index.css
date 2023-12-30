@@ -1,0 +1,310 @@
+* {
+    font-family: 'Lato', sans-serif;
+}
+
+body {
+    margin: 0;
+}
+
+#public-layout {
+    display: flex;
+    flex-direction: row;
+}
+
+#navbar {
+    width: fit-content;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: lightgrey;
+    box-shadow: -3px 3px 5px 3px black;
+    margin-right: 1rem;
+}
+
+#component {
+    height: 100vh;
+    flex-grow: 1;
+}
+
+#navbar-items {
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-item {
+    list-style: none;
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+
+.navbar-link {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    transition: 0.1s;
+}
+
+.navbar-link:hover {
+    color: grey;
+}
+
+.navbar-item-label {
+    font-weight: bold;
+    margin-top: 0;
+}
+
+.page-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+
+.list-element {
+    box-shadow: 2px 2px 5px black;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 2rem;
+    transition: 0.1s;
+    align-self: flex-start;
+}
+
+.list-element:hover {
+    background-color: grey;
+}
+
+.text-input {
+    margin: 1rem 1rem 2rem 1rem;
+    padding: 0.2rem 0.4rem;
+    width: 10rem;
+    height: 1rem;
+    border: none;
+    box-shadow: 2px 2px 5px black;
+    border-radius: 2rem;
+    text-align: center;
+    transition: all 0.1s linear;
+}
+
+.text-input:hover {
+    background-color: lightgrey;
+}
+
+.text-input:focus {
+    outline: 1px solid grey;
+    background-color: lightgrey;
+    transition: all 0.1s linear;
+}
+
+#users-filter > .text-input:focus {
+    width: 14rem;
+    height: 1.5rem;
+    font-size: 1rem;
+}
+
+#users-filter {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 20vh;
+}
+
+#users-container {
+    height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 50vw;
+    padding: 1rem;
+    margin-bottom: 3rem;
+    border-radius: 3rem;
+}
+
+::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+#modal-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#modal-container {
+    width: 75vw;
+    height: fit-content;
+    max-height: 94vh;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 5px black;
+}
+
+#modal-body {
+    height: inherit;
+    width: inherit;
+    padding: 0rem 3rem 3rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.button {
+    padding: 0.4rem;
+    margin: 0.5rem;
+    box-shadow: 2px 2px 5px black;
+    border: none;
+    background-color: lightgrey;
+    border-radius: 0.5rem;
+    transition: all 0.1s linear;
+}
+
+.button:hover {
+    background-color: grey;
+}
+
+.close-button {
+    background-color: white;
+    border: none;
+    font-size: 1rem;
+    text-align: center;
+    align-self: end;
+    justify-self: start;
+    margin: 0.3rem;
+    border-radius: 0.2rem;
+    transition: 0.1s;
+    font-weight: bold;
+}
+
+.close-button:hover {
+    background-color: rgb(219, 0, 0);
+    color: white
+}
+
+.page-container > h1 {
+    text-align: center;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(6, 1fr) 1fr;
+}
+
+.value {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#new-user-address, #new-user-types {
+    flex-direction: column;
+}
+
+#new-user-inputs {
+    grid-template-rows: repeat(5, 1fr) 2fr 3fr 1rem;
+}
+
+.value > .text-input, .value > h3 {
+    margin-bottom: 1rem;
+}
+
+.select-input {
+    padding: 0.3rem;
+    margin-bottom: 1rem;
+    border: 0.1rem solid white;
+    max-width: 15rem;
+    outline: 0px;
+    box-shadow: 2px 2px 5px black;
+    transition: 0.1s;
+}
+
+.select-input:hover, .select-input:focus {
+    background-color: lightgrey;
+}
+
+#create-user-button {
+    grid-column: span 2;
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+
+#users-rents-container {
+    max-height: 17vh;
+    width: 75vw;
+    overflow: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#users-rents-container > ul {
+    list-style-type: square;
+    padding: 0;
+    margin: 0;
+}
+
+#users-rents-container li {
+    margin-bottom: 0.5rem;
+}
+
+#users-rents {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+
+#fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+#rent-device-buttons {
+    margin-bottom: 1rem;
+}
+
+#create-rent-container {
+    grid-template-rows: repeat(4, 1fr);
+}
+
+#rents-container {
+    height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 50vw;
+    padding: 1rem;
+    margin-bottom: 3rem;
+    border-radius: 3rem;
+}
