@@ -23,7 +23,7 @@ const RentsPageComponent = () => {
 
         const [isLoading, setIsLoading] = useState(true);
         const [devices, setDevices] = useState<VirtualDeviceType[]>();
-        const [users, setUsers] = useState<UserType[]>();
+        const [clients, setClients] = useState<UserType[]>();
         const [newRent, setNewRent] = useState<CreateRentType>({
             startLocalDateTime: "",
             endLocalDateTime: "",
@@ -35,8 +35,8 @@ const RentsPageComponent = () => {
             try {
                 setIsLoading(true);
                 const fetchedDevices = await api.getAllVirtualDevices();
-                const fetchedUsers = await api.getAllUsers();
-                const temp: VirtualDeviceType[] = [];
+                const fetchedUsers = await api.getAllUsers(); 
+                const devices: VirtualDeviceType[] = [];
                 fetchedDevices.data.forEach(device => {
                     if (device.databaseType) {
                         device.type = VirtualDeviceTypeEnum.VIRTUAL_DATABASE_SERVER
@@ -45,15 +45,16 @@ const RentsPageComponent = () => {
                     } else if (device.phoneNumber) {
                         device.type = VirtualDeviceTypeEnum.VIRTUAL_PHONE;
                     }
-                    temp.push(device);
+                    devices.push(device);
                 });
-                setDevices(temp);
-                setUsers(fetchedUsers.data);
+                const clients = fetchedUsers.data.filter(user => user.clientType)
+                setDevices(devices);
+                setClients(clients);
                 setNewRent({
                     startLocalDateTime: setDate(),
                     endLocalDateTime: setDate(),
-                    userId: fetchedUsers.data[0].id,
-                    virtualDeviceId: fetchedDevices.data[0].id
+                    userId: clients[0].id,
+                    virtualDeviceId: devices[0].id
                 });
             } catch (error) {
                 console.error(error);
@@ -99,14 +100,14 @@ const RentsPageComponent = () => {
             <div id="modal-body">
                 <h1>Rent a device</h1>
                 { isLoading && <p>Loading...</p> }
-                { !isLoading && devices && users &&
+                { !isLoading && devices && clients &&
                  <div className="details" id="create-rent-container">
                     <div className="value">
-                        <h3>User</h3>
+                        <h3>Client</h3>
                     </div>
                     <div className="value">
                         <select name="userId" id="create-rent-user" className="select-input" onChange={e => updateNewRent(e)}>
-                            {users.map((x, _i) => {
+                            {clients.map((x, _i) => {
                                 return <option value={x.id}>{x.username}</option>
                             })}
                         </select>
@@ -134,7 +135,7 @@ const RentsPageComponent = () => {
                         <input name="endLocalDateTime" value={newRent.endLocalDateTime} type="datetime-local" onChange={e => updateNewRent(e)}/>
                     </div>
                 </div> }
-                {!isLoading && devices && users && <button className="button" onClick={createRent}>Rent a device</button>}
+                {!isLoading && devices && clients && <button className="button" onClick={createRent}>Rent a device</button>}
             </div>
         );
     }

@@ -97,8 +97,8 @@ const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Pro
                     </div>
                     <div id="new-user-address" className="value">
                         <input value={newUser.address.street} placeholder="Enter street name" type="text" name="street" id="address-street-text-input" className="text-input" onChange={(e) => updateNewUsersAddress(e)}/>
-                        <input value={newUser.address.city} placeholder="Enter city name" type="text" name="city" id="address-city-text-input" className="text-input" onChange={(e) => updateNewUsersAddress(e)}/>
                         <input value={newUser.address.houseNumber} placeholder="Enter house number" type="text" name="houseNumber" id="street-housenumber-text-input" className="text-input" onChange={(e) => updateNewUsersAddress(e)}/>
+                        <input value={newUser.address.city} placeholder="Enter city name" type="text" name="city" id="address-city-text-input" className="text-input" onChange={(e) => updateNewUsersAddress(e)}/>
                     </div>
                 </div>
                 <button className="button" onClick={modifyUser}>Modify user</button>

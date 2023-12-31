@@ -152,8 +152,8 @@ const UsersPageComponent = () => {
                     </div>
                     <div id="new-user-address" className="value">
                         <input placeholder="Enter street name" type="text" name="street" id="address-street-text-input" className="text-input" onChange={(e) => updateNewUsersAddress(e)}/>
-                        <input placeholder="Enter city name" type="text" name="city" id="address-city-text-input" className="text-input" onChange={(e) => updateNewUsersAddress(e)}/>
                         <input placeholder="Enter house number" type="text" name="houseNumber" id="street-housenumber-text-input" className="text-input" onChange={(e) => updateNewUsersAddress(e)}/>
+                        <input placeholder="Enter city name" type="text" name="city" id="address-city-text-input" className="text-input" onChange={(e) => updateNewUsersAddress(e)}/>
                     </div>
                     <div id="create-user-button">
                         <button className="button" onClick={createNewUser}>Create new user</button>
