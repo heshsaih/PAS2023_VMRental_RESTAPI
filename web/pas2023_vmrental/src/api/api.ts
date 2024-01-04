@@ -10,7 +10,7 @@ export const api = {
     },
 
     getAllUsers: (): ApiResponseType<UserType[]> => {
-        return apiWithConfig.get("/users");
+        return apiWithConfig.get("/users").catch(error => error);
     },
 
     getUserByUsername: (username: string): ApiResponseType<UserType> => {

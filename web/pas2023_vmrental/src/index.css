@@ -125,6 +125,10 @@ body {
     border-radius: 3rem;
 }
 
+#users-container > h3 {
+    text-align: center;
+}
+
 ::-webkit-scrollbar {
     width: 0.5rem;
   }
@@ -307,4 +311,8 @@ body {
     padding: 1rem;
     margin-bottom: 3rem;
     border-radius: 3rem;
+}
+
+#rents-container > h3 {
+    text-align: center;
 }

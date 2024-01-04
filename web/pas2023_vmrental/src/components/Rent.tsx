@@ -82,6 +82,9 @@ const RentComponent = ({ rent, getRents }: { rent: RentType, getRents: () => voi
             <h2>{rent.rentId}</h2>
             <h3>{rent.renterUsername}</h3>
             <p>{rent.virtualDeviceType}</p>
+            { (new Date(rent.endLocalDateTime) - new Date()) < 0 && <p style={{color: "red"}}>Ended</p> }
+            { (new Date(rent.endLocalDateTime) - new Date()) >= 0 && (new Date(rent.startLocalDateTime) - new Date()) <= 0 && <p style={{color: "green"}}>Active</p> }
+            { (new Date(rent.startLocalDateTime) - new Date()) > 0 &&  <p style={{color: "blue"}}>Pending</p> }
             { displayRentsDetails && <ModalComponent close={e => {
                 e.stopPropagation();
                 closeModal();

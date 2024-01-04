@@ -36,27 +36,31 @@ const RentsPageComponent = () => {
                 setIsLoading(true);
                 const fetchedDevices = await api.getAllVirtualDevices();
                 const fetchedUsers = await api.getAllUsers(); 
-                const devices: VirtualDeviceType[] = [];
-                fetchedDevices.data.forEach(device => {
-                    if (device.databaseType) {
-                        device.type = VirtualDeviceTypeEnum.VIRTUAL_DATABASE_SERVER
-                    } else if (device.operatingSystemType) {
-                        device.type = VirtualDeviceTypeEnum.VIRTUAL_MACHINE;
-                    } else if (device.phoneNumber) {
-                        device.type = VirtualDeviceTypeEnum.VIRTUAL_PHONE;
-                    }
-                    devices.push(device);
-                });
-                const clients = fetchedUsers.data.filter(user => user.clientType)
-                setDevices(devices);
-                setClients(clients);
-                setNewRent({
-                    startLocalDateTime: setDate(),
-                    endLocalDateTime: setDate(),
-                    userId: clients[0].id,
-                    virtualDeviceId: devices[0].id
-                });
-            } catch (error) {
+                if (fetchedDevices.status === 200 && fetchedUsers.status === 200) {
+                    const devices: VirtualDeviceType[] = [];
+                    fetchedDevices.data.forEach(device => {
+                        if (device.databaseType) {
+                            device.type = VirtualDeviceTypeEnum.VIRTUAL_DATABASE_SERVER
+                        } else if (device.operatingSystemType) {
+                            device.type = VirtualDeviceTypeEnum.VIRTUAL_MACHINE;
+                        } else if (device.phoneNumber) {
+                            device.type = VirtualDeviceTypeEnum.VIRTUAL_PHONE;
+                        }
+                        devices.push(device);
+                    });
+                    const clients = fetchedUsers.data.filter(user => user.clientType)
+                    setDevices(devices);
+                    setClients(clients);
+                    setNewRent({
+                        startLocalDateTime: setDate(),
+                        endLocalDateTime: setDate(),
+                        userId: clients[0].id,
+                        virtualDeviceId: devices[0].id
+                    });
+                } else {
+                    alert("There was an error while getting data from the server");
+                }
+            } catch(error) {
                 console.error(error);
             } finally {
                 setIsLoading(false);
@@ -146,25 +150,29 @@ const RentsPageComponent = () => {
             const fetchedRents = await api.getAllRents();
             const fetchedUsers = await api.getAllUsers();
             const fetchedDevices = await api.getAllVirtualDevices();
-            const response: RentType[] = [];
-            console.log(fetchedRents)
-            fetchedRents.data.forEach(rent => {
-                const temp: RentType = {
-                    ...rent,
-                    renterUsername: fetchedUsers.data.filter(user => user.id === rent.userId)[0].username,
-                    virtualDeviceType: null
-                };
-                const rentedDevice = fetchedDevices.data.filter(device => device.id === temp.virtualDeviceId)[0];
-                if (rentedDevice.databaseType) {
-                    temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_DATABASE_SERVER
-                } else if (rentedDevice.operatingSystemType) {
-                    temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_MACHINE;
-                } else if (rentedDevice.phoneNumber) {
-                    temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_PHONE;
-                }
-                response.push(temp);
-            });
-            setRents(response);
+            if (fetchedDevices.status === 200 && fetchedUsers.status === 200 && fetchedRents.status === 200) {
+                const response: RentType[] = [];
+                console.log(fetchedRents)
+                fetchedRents.data.forEach(rent => {
+                    const temp: RentType = {
+                        ...rent,
+                        renterUsername: fetchedUsers.data.filter(user => user.id === rent.userId)[0].username,
+                        virtualDeviceType: null
+                    };
+                    const rentedDevice = fetchedDevices.data.filter(device => device.id === temp.virtualDeviceId)[0];
+                    if (rentedDevice.databaseType) {
+                        temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_DATABASE_SERVER
+                    } else if (rentedDevice.operatingSystemType) {
+                        temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_MACHINE;
+                    } else if (rentedDevice.phoneNumber) {
+                        temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_PHONE;
+                    }
+                    response.push(temp);
+                });
+                setRents(response);
+            } else {
+                alert("There was an error while getting data from the server");
+            }
         } catch (error) {
             console.log(error);
         } finally {
@@ -183,7 +191,7 @@ const RentsPageComponent = () => {
                 <button className="button" onClick={openModal}>Rent a device</button>
             </div>
             <div id="rents-container">
-                { isLoading && <p>Loading...</p> }
+                { isLoading && <h3>Loading...</h3> }
                 { !isLoading && rents && rents.map((x, _i) => {
                     return <RentComponent rent={x} getRents={getRents}></RentComponent>
                 })}

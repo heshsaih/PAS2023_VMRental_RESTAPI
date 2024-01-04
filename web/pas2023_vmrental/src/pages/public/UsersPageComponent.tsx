@@ -170,10 +170,14 @@ const UsersPageComponent = () => {
     const getUsers = async () => {
         try {
             setLoading(true);
-            const { data } = await api.getAllUsers();
-            setUsers(data);
-            setFilteredUsers(data);
-        } catch (error) {
+            const response = await api.getAllUsers();
+            if (response.status === 200) {
+                setUsers(response.data);
+                setFilteredUsers(response.data);
+            } else {
+                alert(`There was an error while getting data from server`);
+            }
+        } catch(error) {
             console.error(error);
         } finally {
             setLoading(false);
@@ -198,7 +202,7 @@ const UsersPageComponent = () => {
                 <input value={filterContent} type="text" id="users-filter-input" onChange={e => setFilterContent(e.target.value)} className="text-input" placeholder="Enter your filter"/>
             </div>
             <div id="users-container">
-                {loading && <p>Loading...</p>}
+                {loading && <h3>Loading...</h3>}
                 {!loading && filteredUsers && filteredUsers.map((x, i) => {
                     return <UserComponent key={i} user={x} getUsers={getUsers}></UserComponent>
                 })}

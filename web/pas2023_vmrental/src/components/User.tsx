@@ -220,7 +220,8 @@ const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Pro
                         {user.active ? <p style={{color: "green"}}>Active</p> : <p style={{color: "red"}}>Inactive</p>}
                     </div>
                 </div>
-                <div id="users-rents">
+                { user.clientType && 
+                    <div id="users-rents">
                     <h2>Rents</h2>
                     <div id="users-rents-container">
                         {loading && <p>Loading...</p>}
@@ -231,7 +232,7 @@ const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Pro
                         </ul>}
                         { !loading && rents.length === 0 && <p>This user has no rents</p> }
                     </div>
-                </div>
+                    </div> }
             </div>
         )
     };
