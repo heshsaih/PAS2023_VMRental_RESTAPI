@@ -4,6 +4,7 @@ import ModalComponent from "./Modal";
 import { api } from "../api/api";
 import { RentType } from "../types/Rent";
 import { validateModifiedUser } from "../validator/validator";
+import { ClientTypeEnum } from "../enums/ClientType.enum";
 
 const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Promise<void>}) => {
     const [displayUserDetails, setDisplayUserDetails] = useState(false);
@@ -20,7 +21,8 @@ const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Pro
             lastName: user.lastName,
             password: null,
             email: user.email,
-            address: user.address
+            address: user.address,
+            clientType: null
         });
 
         const updateNewUser = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -28,7 +30,7 @@ const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Pro
                 ...newUser,
                 [event.target.name]: event.target.value
             });
-            console.log(newUser)
+            console.log(newUser);
         };
 
         const updateNewUsersAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +41,6 @@ const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Pro
                     [event.target.name]: event.target.value
                 }
             });
-            console.log(newUser)
         };
 
         const modifyUser = async () => {
@@ -51,14 +52,21 @@ const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Pro
                     result.inner.forEach(error => response += (error.message + "\n"));
                     alert(response);
                 } else {
-                    const response = await api.modifyUser(newUserCopy.id, newUserCopy);
-                    if (response.status === 200) {
-                        alert("User has been modified successfully");
-                        closeUserDetails();
-                        closeUserModify();
-                        await getUsers();
+                    const modifyResponse = await api.modifyUser(newUserCopy.id, newUserCopy);
+                    if (modifyResponse.status === 200) {
+                        if (newUser.clientType !== null) {
+                            const clientTypeResponse = await api.updateUserType(newUser.id, newUser.clientType);
+                            if (clientTypeResponse.status === 200) {
+                                alert("User has been modified successfully");
+                                closeUserDetails();
+                                closeUserModify();
+                                await getUsers();
+                            } else {
+                                alert(`User's type modification failed with status code ${clientTypeResponse.request.status} and message: \n\n${clientTypeResponse.request.responseText}`);
+                            }
+                        }
                     } else {
-                        alert(`User's modification failed with status code ${response.request.status} and message:\n\n${response.request.responseText}`);
+                        alert(`User's modification failed with status code ${modifyResponse.request.status} and message:\n\n${modifyResponse.request.responseText}`);
                     }
                 }
             }
@@ -92,6 +100,17 @@ const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Pro
                     <div className="value">
                         <input value={newUser.email} placeholder="Enter new email" type="text" name="email" id="email-text-input" className="text-input" onChange={(e) => updateNewUser(e)}/>
                     </div>
+                    { user.clientType && <div className="value">
+                        <h3>Client type</h3>
+                    </div> }
+                    { user.clientType && <div className="value">
+                         <select className="select-input" name="clientType" id="client-type-input" onChange={e => updateNewUser(e)}>
+                            <option value={ClientTypeEnum.BRONZE}>{ClientTypeEnum.BRONZE}</option>
+                            <option value={ClientTypeEnum.SILVER}>{ClientTypeEnum.SILVER}</option>
+                            <option value={ClientTypeEnum.GOLD}>{ClientTypeEnum.GOLD}</option>
+                            <option value={ClientTypeEnum.DIAMOND}>{ClientTypeEnum.DIAMOND}</option>
+                        </select>
+                    </div> }
                     <div className="value">
                          <h3>Address</h3>
                     </div>

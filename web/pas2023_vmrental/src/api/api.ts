@@ -45,6 +45,10 @@ export const api = {
         return apiWithConfig.put(`/users/${userId}`, JSON.stringify(newUser)).catch(error => error);
     },
 
+    updateUserType: (userId: string, clientType: string) => {
+        return apiWithConfig.patch(`/users/${userId}/updateclienttype?clientType=${clientType}`).catch(error => error);
+    },
+
     getAllRents: (): ApiResponseType<RentType[]> => {
         return apiWithConfig.get("/rents");
     },

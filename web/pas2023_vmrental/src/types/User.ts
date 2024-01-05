@@ -34,5 +34,6 @@ export interface ModifyUserType {
     lastName: string,
     password: string | null,
     email: string,
-    address: AddressType
+    address: AddressType,
+    clientType: ClientTypeEnum | null
 }
