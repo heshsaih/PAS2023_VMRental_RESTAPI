@@ -1,0 +1,5 @@
+export enum UserTypeEnum {
+    ADMINISTRATOR = "ADMINISTRATOR",
+    CLIENT = "CLIENT",
+    RESOURCE_MANAGER = "RESOURCE_MANAGER"
+};

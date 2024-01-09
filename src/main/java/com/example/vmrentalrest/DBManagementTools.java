@@ -71,7 +71,7 @@ public class DBManagementTools {
         client3.setUsername("kamil");
         client3.setFirstName("Kamil");
         client3.setLastName("Stoch");
-        client3.setActive(true);
+        client3.setActive(false);
         client3.setEmail("stoch@gmail.com");
         client3.setPassword("haslo123");
         client3.setAddress(address5);
