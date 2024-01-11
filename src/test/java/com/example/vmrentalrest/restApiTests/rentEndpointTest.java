@@ -129,7 +129,7 @@ public class rentEndpointTest {
         Rent rent = new Rent();
         var users = userManager.findAllUsers();
         var virtualDevices = virtualDeviceManager.findAllVirtualDevices();
-        rent.setUserId(users.get(2).getId());
+        rent.setUserId(users.get(1).getId());
         rent.setVirtualDeviceId(virtualDevices.get(2).getId());
         rent.setStartLocalDateTime(LocalDateTime.now());
         rent.setEndLocalDateTime(LocalDateTime.now().plusDays(1));
