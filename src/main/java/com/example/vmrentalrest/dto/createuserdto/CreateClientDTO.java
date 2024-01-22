@@ -14,11 +14,9 @@ public class CreateClientDTO extends CreateUserDTO {
     private ClientType clientType;
 
     public Client createClientFromDTO() {
-        System.out.println("test1");
         Client client = new Client();
         setCreateUserFromDTOProperties(client);
         client.setClientType(this.getClientType());
-        System.out.println("test2");
         return client;
     }
 }

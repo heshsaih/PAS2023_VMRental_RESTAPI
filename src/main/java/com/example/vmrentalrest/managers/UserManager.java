@@ -14,6 +14,8 @@ import com.example.vmrentalrest.model.users.User;
 import com.example.vmrentalrest.repositories.RentRepository;
 import com.example.vmrentalrest.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,8 @@ public class UserManager {
     private final CustomValidator customValidator;
     private final UserRepository userRepository;
     private final RentRepository rentRepository;
+    private final PasswordEncoder passwordEncoder;
+
 
     public Administrator createAdministrator(Administrator administrator) throws IllegalOperationException {
         checkIfExistsAndValidAndSave(administrator);
@@ -55,6 +59,7 @@ public class UserManager {
             throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_ALREADY_EXISTS_MESSAGE);
         }
         customValidator.validate(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
@@ -87,7 +92,11 @@ public class UserManager {
         if(user.address() != null) {
             userOpt.setAddress(user.address());
         }
+
         customValidator.validate(userOpt);
+        if(user.password() != null) {
+            userOpt.setPassword(passwordEncoder.encode(userOpt.getPassword()));
+        }
         userRepository.save(userOpt);
         return userOpt;
     }
@@ -127,4 +136,10 @@ public class UserManager {
         }
         throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USER_IS_NOT_A_CLIENT_MESSAGE);
     }
+    public UserDetailsService getUserDetailsService() {
+        return username -> userRepository.findByUsername(username).orElseThrow(
+                () -> new RecordNotFoundException(ErrorMessages.NotFoundErrorMessages.USER_NOT_FOUND_MESSAGE));
+    }
+
+
 }

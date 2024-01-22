@@ -60,15 +60,24 @@ public class RentManager {
             throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.DEVICE_ALREADY_RENTED_MESSAGE);
         }
     }
-    public void deleteRent(String id) {
-        Rent rent = rentRepository.findById(id).orElseThrow(
+    public void deleteRent(String rentId) {
+        checkIfCanDeleteRent(rentId);
+        rentRepository.deleteById(rentId);
+    }
+    public void deleteRent(String rentId, String userId) {
+        if(!checkIfCanDeleteRent(rentId).getUserId().equals(userId)) {
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USERID_DOES_NOT_MATCH_RENT_USERID_MESSAGE);
+        }
+        rentRepository.deleteById(rentId);
+    }
+
+    private Rent checkIfCanDeleteRent(String rentId) {
+        Rent rent = rentRepository.findById(rentId).orElseThrow(
                 () -> new RecordNotFoundException(ErrorMessages.NotFoundErrorMessages.RENT_NOT_FOUND_MESSAGE));
         if(LocalDateTime.now().isAfter(rent.getStartLocalDateTime())) {
             throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.CANT_DELETE_RENT_MESSAGE);
         }
-        Client client = (Client) userManager.findUserById(rent.getUserId());
-        userRepository.save(client);
-        rentRepository.deleteById(id);
+        return rent;
     }
 
     public List<Rent> findAllRents() {
@@ -80,6 +89,18 @@ public class RentManager {
     }
 
     public Rent updateRent(String rentId, UpdateRentDTO updateRentDTO) {
+        return rentRepository.save(performUpdateRent(rentId,updateRentDTO));
+    }
+
+    public Rent updateRent(String rentId, UpdateRentDTO updateRentDTO, String userId) {
+        var value = performUpdateRent(rentId,updateRentDTO);
+        if(!value.getUserId().equals(userId)) {
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USERID_DOES_NOT_MATCH_RENT_USERID_MESSAGE);
+        }
+        return rentRepository.save(value);
+    }
+
+    private Rent performUpdateRent(String rentId,UpdateRentDTO updateRentDTO) {
         if(updateRentDTO == null) {
             throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.BODY_IS_NULL_MESSAGE);
         }
@@ -97,9 +118,7 @@ public class RentManager {
         if(willVirtualDeviceBeRented(value)) {
             throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.DEVICE_ALREADY_RENTED_MESSAGE);
         }
-        rentRepository.save(value);
         return value;
-
     }
     public List<Rent> findByVirtualDeviceId(String id) {
         virtualDeviceRepository.findById(id).orElseThrow(
@@ -129,24 +148,14 @@ public class RentManager {
                 rent1.getStartLocalDateTime(),
                 rent1.getEndLocalDateTime());
     }
-//                rentRepository.findAllByVirtualDeviceId(rent1.getVirtualDeviceId())
-//                .stream()
-//                .anyMatch(rent ->
-//                        !rent.getRentId().equals(rent1.getRentId())
-//                        &&(rent.getStartLocalDateTime().isBefore(rent1.getStartLocalDateTime()) && rent.getEndLocalDateTime().isAfter(rent1.getStartLocalDateTime())
-//                        || rent.getStartLocalDateTime().isBefore(rent1.getEndLocalDateTime()) && rent.getEndLocalDateTime().isAfter(rent1.getEndLocalDateTime())
-//                        || rent.getStartLocalDateTime().isAfter(rent1.getStartLocalDateTime()) && rent.getEndLocalDateTime().isBefore(rent1.getEndLocalDateTime())));
-//    }
-//                rentRepository.existsRentByVirtualDeviceIdAndRentIdNotAndStartLocalDateTimeIsBeforeAndEndLocalDateTimeIsAfterOrRentIdNotAndStartLocalDateTimeIsBeforeAndEndLocalDateTimeIsAfterOrRentIdNotAndStartLocalDateTimeIsAfterAndEndLocalDateTimeIsBefore(
-//                rent1.getVirtualDeviceId(),
-//                rent1.getRentId(),
-//                rent1.getStartLocalDateTime(),
-//                rent1.getStartLocalDateTime(),
-//                rent1.getRentId(),
-//                rent1.getEndLocalDateTime(),
-//                rent1.getEndLocalDateTime(),
-//                rent1.getRentId(),
-//                rent1.getStartLocalDateTime(),
-//                rent1.getEndLocalDateTime());
+
+    public Rent findRentById(String id, String userId) {
+        var value = rentRepository.findById(id).orElseThrow(
+                () -> new RecordNotFoundException(ErrorMessages.NotFoundErrorMessages.RENT_NOT_FOUND_MESSAGE));
+        if (!value.getUserId().equals(userId)) {
+            throw new IllegalOperationException(ErrorMessages.BadRequestErrorMessages.USERID_DOES_NOT_MATCH_RENT_USERID_MESSAGE);
+        }
+        return value;
+    }
 
 }

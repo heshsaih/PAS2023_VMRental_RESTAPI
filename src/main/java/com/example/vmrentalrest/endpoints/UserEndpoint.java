@@ -1,5 +1,7 @@
 package com.example.vmrentalrest.endpoints;
 
+import com.example.vmrentalrest.security.JwtService;
+import com.example.vmrentalrest.dto.SignInDTO;
 import com.example.vmrentalrest.dto.createuserdto.CreateClientDTO;
 import com.example.vmrentalrest.dto.createuserdto.CreateResourceManagerDTO;
 import com.example.vmrentalrest.dto.getuserdto.GetAdministratorDTO;
@@ -8,12 +10,14 @@ import com.example.vmrentalrest.dto.getuserdto.GetResourceManagerDTO;
 import com.example.vmrentalrest.dto.getuserdto.GetUserDTO;
 import com.example.vmrentalrest.dto.createuserdto.CreateAdministratorDTO;
 import com.example.vmrentalrest.dto.updatedto.UpdateUserDTO;
-import com.example.vmrentalrest.managers.RentManager;
+import com.example.vmrentalrest.security.AuthenticationService;
 import com.example.vmrentalrest.managers.UserManager;
+import com.example.vmrentalrest.security.JwtAuthenticationResponse;
 import com.example.vmrentalrest.model.Rent;
 import com.example.vmrentalrest.model.enums.ClientType;
 import com.example.vmrentalrest.model.users.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +28,8 @@ import java.util.List;
 public class UserEndpoint {
 
     private final UserManager userManager;
+    private final AuthenticationService authenticationService;
+    private final JwtService jwtService;
 
     @GetMapping
     public List<GetUserDTO> getAllUsers(){
@@ -81,5 +87,27 @@ public class UserEndpoint {
     @PatchMapping("/{id}/deactivate")
     public void deactivateUser(@PathVariable String id) {
         userManager.setInactive(id);
+    }
+
+    @PostMapping("/signin")
+    public JwtAuthenticationResponse signIn(@RequestBody SignInDTO signInDTO) {
+        return authenticationService.signIn(signInDTO);
+    }
+    @PostMapping("/signup")
+    public JwtAuthenticationResponse signUp(@RequestBody CreateClientDTO createClientDTO) {
+        return authenticationService.signUp(createClientDTO);
+
+    }
+    @GetMapping("/self")
+    public GetUserDTO getSelf(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        return userManager.findUserById(jwtService.extractUserId(token)).convertToDTO();
+    }
+    @PutMapping("/self")
+    public GetUserDTO updateSelf(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody UpdateUserDTO updateUserDTO) {
+        return userManager.updateUser(jwtService.extractUserId(token), updateUserDTO).convertToDTO();
+    }
+    @PostMapping("/self/signout")
+    public void signOut(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        jwtService.addTokenToBlackList(token);
     }
 }

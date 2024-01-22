@@ -3,7 +3,9 @@ package com.example.vmrentalrest.endpoints;
 import com.example.vmrentalrest.dto.updatedto.UpdateRentDTO;
 import com.example.vmrentalrest.managers.RentManager;
 import com.example.vmrentalrest.model.Rent;
+import com.example.vmrentalrest.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RentEndpoint {
     private final RentManager rentManager;
+    private final JwtService jwtService;
 
     @GetMapping
     public List<Rent> getAllRents() {
@@ -44,4 +47,25 @@ public class RentEndpoint {
         rentManager.deleteRent(id);
     }
 
+    @GetMapping("/self/rents")
+    public List<Rent> getMyRents(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        return rentManager.findByUserId(jwtService.extractUserId(token));
+    }
+    @PostMapping("/self/rents")
+    public Rent createMyRent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Rent rent) {
+        rent.setUserId(jwtService.extractUserId(token));
+        return rentManager.createRent(rent);
+    }
+    @GetMapping("/self/rents/{id}")
+    public Rent getMyRentById(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @PathVariable String id) {
+        return rentManager.findRentById(id,jwtService.extractUserId(token));
+    }
+    @PutMapping("/self/rents/{id}")
+    public Rent updateMyRent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @PathVariable String id, @RequestBody UpdateRentDTO updateRentDTO) {
+        return rentManager.updateRent(id,updateRentDTO, jwtService.extractUserId(token));
+    }
+    @DeleteMapping("/self/rents/{id}")
+    public void deleteMyRent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @PathVariable String id) {
+        rentManager.deleteRent(id,jwtService.extractUserId(token));
+    }
 }
