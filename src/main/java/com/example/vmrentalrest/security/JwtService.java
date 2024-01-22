@@ -30,7 +30,7 @@ public class JwtService {
     @Value("${jwt.expiration.ms}")
     Long jwtExpirationMs;
 
-    JwtBlacklistRepository jwtBlacklistRepository;
+    private final JwtBlacklistRepository jwtBlacklistRepository;
 
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);

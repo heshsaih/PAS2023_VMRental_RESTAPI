@@ -12,19 +12,36 @@ export const publicRoutes: RouteType[] = [
         Component: HomePageComponent
     },
     {
-        pathname: Pathnames.public.users,
-        Component: UsersPageComponent
-    },
+        pathname: Pathnames.public.login,
+        Component: LogInPageComponent
+    }
+]
+
+export const userRoutes: RouteType[] = [
     {
-        pathname: Pathnames.public.devices,
-        Component: DevicesPageComponent
-    },
+        pathname: Pathnames.user.rents,
+        Component: RentsPageComponent
+    }
+]
+
+export const adminRoutes: RouteType[] = [
     {
-        pathname: Pathnames.public.rents,
+        pathname: Pathnames.admin.rents,
         Component: RentsPageComponent
     },
     {
-        pathname: Pathnames.public.login,
-        Component: LogInPageComponent
+        pathname: Pathnames.admin.devices,
+        Component: DevicesPageComponent
+    },
+    {
+        pathname: Pathnames.admin.users,
+        Component: UsersPageComponent
+    }
+]
+
+export const resourceManagerRoutes: RouteType[] = [
+    {
+        pathname: Pathnames.resourceManager.devices,
+        Component: DevicesPageComponent
     }
 ]

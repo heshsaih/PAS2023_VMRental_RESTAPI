@@ -1,11 +1,14 @@
 import { BrowserRouter } from 'react-router-dom';
 import { RoutesComponent } from './router/Routes/index';
 import "./index.css";
+import {UserStateContextProvider} from "./context/UserContext.tsx";
 
 const App = () => {
   return (
     <BrowserRouter>
-      <RoutesComponent></RoutesComponent>
+          <UserStateContextProvider>
+              <RoutesComponent></RoutesComponent>
+          </UserStateContextProvider>
     </BrowserRouter>
   );
 };

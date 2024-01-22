@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_URL = "http://localhost:8080";
+export const API_URL = "https://localhost:8080";
 export const TIMEOUT_IN_MS = 30000;
 export const DEFAULT_HEADERS = {
     Accept: "application/json",
@@ -16,12 +16,18 @@ export const apiWithConfig = axios.create({
 apiWithConfig.interceptors.request.use((config) => {
     const token = window.localStorage.getItem("token");
     if (token && config.headers) {
-        config.headers.Authorization = JSON.parse(token);
+        config.headers.Authorization = "Bearer " + JSON.parse(token);
     }
     return config;
 });
 
 apiWithConfig.interceptors.response.use(
     (response) => response,
-    (error) => Promise.reject(error)
+    (error) => {
+        const status = error.response?.status;
+        if (status === 401 || status === 403 || status === 404) {
+            localStorage.removeItem("token");
+        }
+        return Promise.reject(error);
+    }
 );

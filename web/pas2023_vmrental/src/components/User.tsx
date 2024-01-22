@@ -49,7 +49,7 @@ const UserComponent = ({ user, getUsers }: { user: UserType, getUsers: () => Pro
                 const result = await validateModifiedUser(newUserCopy);
                 if (result.inner) {
                     let response = "Invalid data\n\n";
-                    result.inner.forEach(error => response += (error.message + "\n"));
+                    result.inner.forEach((error: {message: string}) => response += (error.message + "\n"));
                     alert(response);
                 } else {
                     const modifyResponse = await api.modifyUser(newUserCopy.id, newUserCopy);

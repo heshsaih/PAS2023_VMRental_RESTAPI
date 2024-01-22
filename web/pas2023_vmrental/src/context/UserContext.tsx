@@ -1,18 +1,18 @@
-import { ReactNode, createContext, useContext, useEffect, useState } from "react";
-import { UserType } from "../types/User";
+import {UserType} from "../types/User.ts";
+import {createContext, useContext, useEffect, useState} from "react";
 
-interface UserState {
+interface UserStateType {
     user: UserType | null,
-    setUser: (item: UserType | null) => void,
+    setUser: (newUser: UserType | null) => void,
     isLoggingIn: boolean,
-    setIsLoggingIn: (value: boolean) => void,
-    isFetching: boolean,
-    setIsFetching: (value: boolean) => void
+    setIsLoggingIn: (state: boolean) => void,
+    isFetching: boolean
+    setIsFetching: (state: boolean) => void
 }
 
-const UserStateContext = createContext<UserState | null>(null);
+const UserStateContext = createContext<UserStateType | null>(null);
 
-export const UserStateProvider = ({children}: {children: ReactNode}) => {
+export const UserStateContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<UserType | null>(null);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
@@ -21,14 +21,14 @@ export const UserStateProvider = ({children}: {children: ReactNode}) => {
         if (user?.token) {
             localStorage.setItem("token", JSON.stringify(user.token));
         }
-    }, [user])
+    }, [user]);
 
     return (
         <UserStateContext.Provider value={{ user, setUser, isLoggingIn, setIsLoggingIn, isFetching, setIsFetching }}>
-            {children}
+            { children }
         </UserStateContext.Provider>
-    );
-};
+    )
+}
 
 export const useUserState = () => {
     const userState = useContext(UserStateContext);
@@ -38,4 +38,4 @@ export const useUserState = () => {
     }
 
     return userState;
-};
+}

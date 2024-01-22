@@ -1,5 +1,4 @@
 import { VirtualDeviceTypeEnum } from "../enums/VirtualDeviceType.enum"
-import { VirtualDeviceType } from "./VirtualDevice"
 
 export interface RentType {
     rentId: string,

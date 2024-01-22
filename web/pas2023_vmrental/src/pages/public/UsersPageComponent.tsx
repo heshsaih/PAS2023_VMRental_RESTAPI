@@ -55,7 +55,7 @@ const UsersPageComponent = () => {
                 const result = await validateUser(newUserCopy);
                 if (result.inner) {
                     let response = "Invalid data\n\n";
-                    result.inner.forEach(error => response += (error.message + "\n"));
+                    result.inner.forEach((error: {message: string}) => response += (error.message + "\n"));
                     alert(response)
                 } else {
                     switch(newUserCopy.userType) {

@@ -85,7 +85,7 @@ const RentsPageComponent = () => {
                 const result = await validateCreateRent(newRentCopy);
                 if (result.inner) {
                     let response = "Invalid data\n\n";
-                    result.inner.forEach(error => response += (error.message + "\n"));
+                    result.inner.forEach((error: {message: string}) => response += (error.message + "\n"));
                     alert(response);
                 } else {
                     const response = await api.createRent(newRentCopy);

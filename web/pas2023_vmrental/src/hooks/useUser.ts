@@ -1,55 +1,57 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useUserState } from "../context/UserContext";
-import { UserTypeEnum } from "../enums/UserType.enum";
-import { api } from "../api/api";
-import { Pathnames } from "../router/pathnames";
+import {useUserState} from "../context/UserContext.tsx";
+import {UserTypeEnum} from "../enums/UserType.enum.ts";
+import {SignInType} from "../types/SignIn.ts";
+import {api} from "../api/api.ts";
+import {useNavigate} from "react-router-dom";
+import {Pathnames} from "../router/pathnames.ts";
 
 export const useUser = () => {
-    const navigate = useNavigate();
     const { user, setUser, isLoggingIn, setIsLoggingIn, isFetching, setIsFetching } = useUserState();
-
-    const isAuthenticated = user?.username;
+    const navigate = useNavigate();
+    const isAuthenticated = user?.userType === UserTypeEnum.CLIENT;
     const isAdmin = user?.userType === UserTypeEnum.ADMINISTRATOR;
+    const isResourceManager = user?.userType === UserTypeEnum.RESOURCE_MANAGER;
+
+    const logIn = async (signInData: SignInType) => {
+        try {
+            setIsLoggingIn(true);
+            const { data } = await api.logIn(signInData);
+            setUser(data);
+            navigate(Pathnames.user.home);
+        } catch (error) {
+            console.error(error);
+            alert("Loggin in has failed");
+        } finally {
+            setIsLoggingIn(false);
+        }
+    }
 
     const logOut = async () => {
         try {
             setIsFetching(true);
             await api.logOut();
-        } catch {
-            alert("Logout failed");
+        } catch (error) {
+            console.error(error);
+            alert("Logging out has failed");
         } finally {
             localStorage.removeItem("token");
             setUser(null);
-            navigate(Pathnames.public.login);
             setIsFetching(false);
-        }
-    } 
-
-    const logIn = async (username: string, password: string) => {
-        try {
-            setIsLoggingIn(true);
-            const { data } = await api.logIn(username, password);
-            setUser(data);
-        } catch {
-            alert("Logging in failed");
-            logOut();
-        } finally {
-            setIsLoggingIn(false);
+            navigate(Pathnames.public.home);
         }
     }
 
     const getCurrentUser = async () => {
         try {
             setIsFetching(true);
-
             if (localStorage.getItem("token")) {
                 const { data } = await api.getCurrentUser();
                 setUser(data);
+                console.log(data);
             }
-        } catch {
-            alert("Getting current user failed");
-            logOut();
+        } catch (error) {
+            console.error(error);
+            alert("Can't find current user");
         } finally {
             setIsFetching(false);
         }
@@ -60,9 +62,10 @@ export const useUser = () => {
         isLoggingIn,
         isFetching,
         isAuthenticated,
+        isResourceManager,
         isAdmin,
         logIn,
-        logOut,
-        getCurrentUser
+        getCurrentUser,
+        logOut
     }
-};
+}

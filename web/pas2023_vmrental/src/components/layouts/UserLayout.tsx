@@ -1,8 +1,8 @@
-import { HomePageIcon, LogInPageIcon } from "../../assets/NavbarIcons";
-import { NavbarItem } from "../../types/NavbarItem.ts";
 import Navbar from "../Navbar.tsx";
+import {NavbarItem} from "../../types/NavbarItem.ts";
+import {HomePageIcon, LogInPageIcon, RentsPageIcon} from "../../assets/NavbarIcons.tsx";
 
-const PublicLayout = ({ Component }: {Component: React.FC}) => {
+const UserLayoutComponent = ({ Component }: { Component: React.FC }) => {
     const navbarItems: NavbarItem[] = [
         {
             path: "/",
@@ -10,12 +10,16 @@ const PublicLayout = ({ Component }: {Component: React.FC}) => {
             label: "Home"
         },
         {
-            path: "/login",
+            path: "/rents",
+            icon: <RentsPageIcon></RentsPageIcon>,
+            label: "Rents"
+        },
+        {
+            path: "/logout",
             icon: <LogInPageIcon></LogInPageIcon>,
-            label: "Log in"
+            label: "Log out"
         }
-    ]
-
+    ];
     return (
         <div id="public-layout">
             <Navbar navbarItems={navbarItems}></Navbar>
@@ -24,6 +28,6 @@ const PublicLayout = ({ Component }: {Component: React.FC}) => {
             </div>
         </div>
     )
-};
+}
 
-export default PublicLayout;
+export default UserLayoutComponent;
