@@ -1,6 +1,5 @@
-import { MouseEventHandler } from "react";
 
-const ModalComponent = ({ close, Body }: {close: MouseEventHandler, Body: React.ElementType}) => {
+const ModalComponent = ({ close, Body }: {close: () => void, Body: React.ElementType}) => {
     return (
         <div id="modal">
             <div id="modal-background" onClick={e => {

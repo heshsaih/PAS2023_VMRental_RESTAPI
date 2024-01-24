@@ -3,7 +3,6 @@ import {adminRoutes, publicRoutes, resourceManagerRoutes, userRoutes} from "../r
 import PublicLayout from "../../components/layouts/PublicLayout";
 import {useUser} from "../../hooks/useUser.ts";
 import {useEffect} from "react";
-import ErrorPageComponent from "../../pages/public/ErrorPage.tsx";
 import UserLayout from "../../components/layouts/UserLayout.tsx";
 import AdminLayoutComponent from "../../components/layouts/AdminLayout.tsx";
 import ResourceManagerLayoutComponent from "../../components/layouts/ResourceManagerLayout.tsx";
@@ -25,25 +24,15 @@ export const RoutesComponent = () => {
 
     return (
         <Routes>
-            { !isAuthenticated && publicRoutes.map(({ pathname, Component }) => {
-                console.log("4");
+            { (!isAuthenticated && publicRoutes.map(({ pathname, Component }) => {
                 return <Route key={pathname} path={pathname} element={<PublicLayout Component={Component}></PublicLayout>}></Route>;
-            })}
-
-            { isAuthenticated && isAdmin && adminRoutes.map(({ pathname, Component }) => {
-                console.log("2");
+            })) || (isAuthenticated && isAdmin && adminRoutes.map(({ pathname, Component }) => {
                 return <Route key={pathname} path={pathname} element={<AdminLayoutComponent Component={Component}></AdminLayoutComponent>}></Route>;
-            })}
-
-            { isAuthenticated && isResourceManager && resourceManagerRoutes.map(({ pathname, Component }) => {
-                console.log("3");
-                return <Route key={pathname} path={pathname} element={<ResourceManagerLayoutComponent Component={Component}></ResourceManagerLayoutComponent>}></Route>
-            })}
-
-            { isAuthenticated && userRoutes.map(({ pathname, Component }) => {
-                console.log("1");
+            })) || (isAuthenticated && userRoutes.map(({ pathname, Component }) => {
                 return <Route key={pathname} path={pathname} element={<UserLayout Component={Component}></UserLayout>}></Route>
-            })}
+            })) || (isAuthenticated && isResourceManager && resourceManagerRoutes.map(({ pathname, Component }) => {
+                return <Route key={pathname} path={pathname} element={<ResourceManagerLayoutComponent Component={Component}></ResourceManagerLayoutComponent>}></Route>
+            }))}
         </Routes>
     );
 };

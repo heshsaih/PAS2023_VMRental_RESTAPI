@@ -7,6 +7,7 @@ import { RouteType } from "../types/Route";
 import { Pathnames } from "./pathnames";
 import LogOutPageComponent from "../pages/public/LogOutPageComponent.tsx";
 import ErrorPageComponent from "../pages/public/ErrorPage.tsx";
+import ChangePasswordPageComponent from "../pages/public/ChangePasswordPageComponent.tsx";
 
 export const publicRoutes: RouteType[] = [
     {
@@ -37,6 +38,10 @@ export const userRoutes: RouteType[] = [
         Component: LogOutPageComponent
     },
     {
+        pathname: Pathnames.user.changePassword,
+        Component: ChangePasswordPageComponent
+    },
+    {
         pathname: "*",
         Component: ErrorPageComponent
     }
@@ -64,6 +69,10 @@ export const adminRoutes: RouteType[] = [
         Component: LogOutPageComponent
     },
     {
+        pathname: Pathnames.admin.changePassword,
+        Component: ChangePasswordPageComponent
+    },
+    {
         pathname: "*",
         Component: ErrorPageComponent
     }
@@ -81,6 +90,10 @@ export const resourceManagerRoutes: RouteType[] = [
     {
         pathname: Pathnames.resourceManager.logout,
         Component: LogOutPageComponent
+    },
+    {
+        pathname: Pathnames.resourceManager.changePassword,
+        Component: ChangePasswordPageComponent
     },
     {
         pathname: "*",

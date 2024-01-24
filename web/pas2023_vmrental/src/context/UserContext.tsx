@@ -1,5 +1,5 @@
 import {UserType} from "../types/User.ts";
-import {createContext, useContext, useEffect, useState} from "react";
+import {createContext, useContext, useState} from "react";
 
 interface UserStateType {
     user: UserType | null,

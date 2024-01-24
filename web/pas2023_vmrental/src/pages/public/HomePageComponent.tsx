@@ -1,5 +1,3 @@
-import {useUserState} from "../../context/UserContext.tsx";
-
 const HomePageComponent = () => {
     return (
         <div id="homepage" className="page-container">

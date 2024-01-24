@@ -1,6 +1,6 @@
 import Navbar from "../Navbar.tsx";
 import {NavbarItem} from "../../types/NavbarItem.ts";
-import {HomePageIcon, LogInPageIcon, RentsPageIcon} from "../../assets/NavbarIcons.tsx";
+import {ChangePasswordIcon, HomePageIcon, LogInPageIcon, RentsPageIcon} from "../../assets/NavbarIcons.tsx";
 
 const UserLayoutComponent = ({ Component }: { Component: React.FC }) => {
     const navbarItems: NavbarItem[] = [
@@ -13,6 +13,11 @@ const UserLayoutComponent = ({ Component }: { Component: React.FC }) => {
             path: "/rents",
             icon: <RentsPageIcon></RentsPageIcon>,
             label: "Rents"
+        },
+        {
+            path: "/change-password",
+            icon: <ChangePasswordIcon></ChangePasswordIcon>,
+            label: "Change password"
         },
         {
             path: "/logout",

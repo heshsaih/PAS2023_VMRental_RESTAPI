@@ -1,5 +1,12 @@
 import {NavbarItem} from "../../types/NavbarItem.ts";
-import {DevicesPageIcon, HomePageIcon, LogInPageIcon, RentsPageIcon, UsersPageIcon} from "../../assets/NavbarIcons.tsx";
+import {
+    ChangePasswordIcon,
+    DevicesPageIcon,
+    HomePageIcon,
+    LogInPageIcon,
+    RentsPageIcon,
+    UsersPageIcon
+} from "../../assets/NavbarIcons.tsx";
 import Navbar from "../Navbar.tsx";
 
 const AdminLayoutComponent = ({ Component }: { Component: React.FC }) => {
@@ -23,6 +30,11 @@ const AdminLayoutComponent = ({ Component }: { Component: React.FC }) => {
             path: "/users",
             icon: <UsersPageIcon></UsersPageIcon>,
             label: "Users"
+        },
+        {
+            path: "/change-password",
+            icon: <ChangePasswordIcon></ChangePasswordIcon>,
+            label: "Change password"
         },
         {
             path: "/logout",

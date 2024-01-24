@@ -13,6 +13,6 @@ export interface RentType {
 export interface CreateRentType {
     startLocalDateTime: string,
     endLocalDateTime: string,
-    userId: string,
+    userId: string | undefined,
     virtualDeviceId: string
 }

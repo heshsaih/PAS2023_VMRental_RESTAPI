@@ -1,4 +1,4 @@
-import { HomePageIcon, LogInPageIcon } from "../../assets/NavbarIcons";
+import { HomePageIcon, LogInPageIcon} from "../../assets/NavbarIcons";
 import { NavbarItem } from "../../types/NavbarItem.ts";
 import Navbar from "../Navbar.tsx";
 

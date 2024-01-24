@@ -60,9 +60,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/users/signin","/users/signup").permitAll()
                         .requestMatchers("/users/self","/users/self/**").hasAuthority(Role.CLIENT.name())
                         .requestMatchers("/users/**").hasAuthority(Role.ADMINISTRATOR.name())
-                        .requestMatchers("/rents/**").hasAuthority(Role.ADMINISTRATOR.name())
                         .requestMatchers("/rents/self","/rents/self/**").hasAuthority(Role.CLIENT.name())
-                        .requestMatchers("/virtual-devices").hasAuthority(Role.CLIENT.name())
+                        .requestMatchers("/rents/**").hasAuthority(Role.ADMINISTRATOR.name())
+                        .requestMatchers(HttpMethod.GET,"/virtual-devices").hasAuthority(Role.CLIENT.name())
                         .requestMatchers( "/virtual-devices/**").hasAuthority(Role.RESOURCE_MANAGER.name())
 
 
@@ -87,7 +87,10 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.applyPermitDefaultValues();
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH"));
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }

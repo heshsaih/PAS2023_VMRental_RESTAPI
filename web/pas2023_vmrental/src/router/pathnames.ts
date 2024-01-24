@@ -6,18 +6,21 @@ export const Pathnames = {
     user: {
         home: "/",
         rents: "/rents",
-        logout: "/logout"
+        logout: "/logout",
+        changePassword: "/change-password"
     },
     admin: {
         home: "/",
         users: "/users",
         devices: "/devices",
         rents: "/rents",
-        logout: "/logout"
+        logout: "/logout",
+        changePassword: "/change-password"
     },
     resourceManager: {
         home: "/",
         devices: "/devices",
-        logout: "/logout"
+        logout: "/logout",
+        changePassword: "/change-password"
     }
 }

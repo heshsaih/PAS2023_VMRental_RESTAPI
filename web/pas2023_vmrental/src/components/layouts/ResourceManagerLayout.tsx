@@ -1,6 +1,6 @@
 import Navbar from "../Navbar.tsx";
 import {NavbarItem} from "../../types/NavbarItem.ts";
-import {DevicesPageIcon, HomePageIcon, LogInPageIcon} from "../../assets/NavbarIcons.tsx";
+import {ChangePasswordIcon, DevicesPageIcon, HomePageIcon, LogInPageIcon} from "../../assets/NavbarIcons.tsx";
 
 const ResourceManagerLayoutComponent = ({ Component }: { Component: React.FC }) => {
     const navbarItems: NavbarItem[] = [
@@ -13,6 +13,11 @@ const ResourceManagerLayoutComponent = ({ Component }: { Component: React.FC }) 
             path: "/devices",
             icon: <DevicesPageIcon></DevicesPageIcon>,
             label: "Devices"
+        },
+        {
+            path: "/change-password",
+            icon: <ChangePasswordIcon></ChangePasswordIcon>,
+            label: "Change password"
         },
         {
             path: "/logout",

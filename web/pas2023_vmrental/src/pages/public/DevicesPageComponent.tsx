@@ -1,8 +1,9 @@
 import {useEffect, useState} from "react";
 import {api} from "../../api/api.ts";
+import {VirtualDeviceType} from "../../types/VirtualDevice.ts";
 
 const DevicesPageComponent = () => {
-    const [devices, setDevices] = useState([]);
+    const [devices, setDevices] = useState<VirtualDeviceType[]>([]);
 
     const fetchDevices = async () => {
         try {
@@ -19,8 +20,8 @@ const DevicesPageComponent = () => {
 
     return (
         <div>
-            { devices.map((x, i) => {
-                return <h1>{JSON.stringify(x)}</h1>
+            { devices.map((x, _i) => {
+                return <h3>{JSON.stringify(x)}</h3>
             }) }
         </div>
     )

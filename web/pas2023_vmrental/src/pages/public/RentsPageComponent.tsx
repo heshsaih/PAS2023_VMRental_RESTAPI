@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
-import { api } from "../../api/api";
+import {useEffect, useState} from "react";
+import {api} from "../../api/api";
 import RentComponent from "../../components/Rent";
-import { CreateRentType, RentType } from "../../types/Rent";
+import {CreateRentType, RentType} from "../../types/Rent";
 import ModalComponent from "../../components/Modal";
-import { VirtualDeviceType } from "../../types/VirtualDevice";
-import { UserType } from "../../types/User";
-import { validateCreateRent } from "../../validator/validator";
-import { VirtualDeviceTypeEnum } from "../../enums/VirtualDeviceType.enum";
+import {VirtualDeviceType} from "../../types/VirtualDevice";
+import {UserType} from "../../types/User";
+import {validateCreateRent} from "../../validator/validator";
+import {VirtualDeviceTypeEnum} from "../../enums/VirtualDeviceType.enum";
+import {useUser} from "../../hooks/useUser.ts";
+import {AxiosResponse} from "axios";
+import {UserTypeEnum} from "../../enums/UserType.enum.ts";
 
 const RentsPageComponent = () => {
+    const { user, isAdmin } = useUser();
     const [isLoading, setIsLoading] = useState(true);
     const [rents, setRents] = useState<RentType[]>([]);
     const [displayCreateRent, setDisplayCreateRent] = useState(false);
@@ -23,7 +27,7 @@ const RentsPageComponent = () => {
 
         const [isLoading, setIsLoading] = useState(true);
         const [devices, setDevices] = useState<VirtualDeviceType[]>();
-        const [clients, setClients] = useState<UserType[]>();
+        const [clients, setClients] = useState<UserType[]>([]);
         const [newRent, setNewRent] = useState<CreateRentType>({
             startLocalDateTime: "",
             endLocalDateTime: "",
@@ -35,8 +39,7 @@ const RentsPageComponent = () => {
             try {
                 setIsLoading(true);
                 const fetchedDevices = await api.getAllVirtualDevices();
-                const fetchedUsers = await api.getAllUsers(); 
-                if (fetchedDevices.status === 200 && fetchedUsers.status === 200) {
+                if (fetchedDevices.status === 200) {
                     const devices: VirtualDeviceType[] = [];
                     fetchedDevices.data.forEach(device => {
                         if (device.databaseType) {
@@ -48,17 +51,31 @@ const RentsPageComponent = () => {
                         }
                         devices.push(device);
                     });
-                    const clients = fetchedUsers.data.filter(user => user.clientType)
                     setDevices(devices);
-                    setClients(clients);
                     setNewRent({
                         startLocalDateTime: setDate(),
                         endLocalDateTime: setDate(),
-                        userId: clients[0].id,
+                        userId: user?.id,
                         virtualDeviceId: devices[0].id
                     });
                 } else {
                     alert("There was an error while getting data from the server");
+                }
+                if (isAdmin) {
+                    console.log("jest to admin zdecydowanie");
+                    const fetchedUsers = await api.getAllUsers();
+                    if (fetchedUsers.status === 200) {
+                        const clients = fetchedUsers.data.filter(obj => obj.userType === UserTypeEnum.CLIENT);
+                        setNewRent({
+                            ...newRent,
+                            userId: clients[0].id,
+                            startLocalDateTime: setDate(),
+                            endLocalDateTime: setDate()
+                        });
+                        setClients(clients);
+                    } else {
+                        alert("There was an error while getting data from the server");
+                    }
                 }
             } catch(error) {
                 console.error(error);
@@ -88,7 +105,12 @@ const RentsPageComponent = () => {
                     result.inner.forEach((error: {message: string}) => response += (error.message + "\n"));
                     alert(response);
                 } else {
-                    const response = await api.createRent(newRentCopy);
+                    let response: AxiosResponse<any>;
+                    if (isAdmin) {
+                        response = await api.createRent(newRentCopy);
+                    } else {
+                        response = await api.createCurrentUsersRent(newRentCopy);
+                    }
                     if (response.status === 200) {
                         alert("New rent has been created successfully!");
                         closeModal();
@@ -104,18 +126,18 @@ const RentsPageComponent = () => {
             <div id="modal-body">
                 <h1>Rent a device</h1>
                 { isLoading && <p>Loading...</p> }
-                { !isLoading && devices && clients &&
+                { !isLoading && devices &&
                  <div className="details" id="create-rent-container">
-                    <div className="value">
-                        <h3>Client</h3>
-                    </div>
-                    <div className="value">
-                        <select name="userId" id="create-rent-user" className="select-input" onChange={e => updateNewRent(e)}>
-                            {clients.map((x, _i) => {
-                                return <option value={x.id}>{x.username}</option>
-                            })}
-                        </select>
-                    </div>
+                     { isAdmin && clients.length > 0 && <div className="value">
+                         <h3>Client</h3>
+                     </div> }
+                     { isAdmin && clients.length > 0 && <div className="value">
+                         <select name="userId" id="create-rent-user" className="select-input" onChange={e => updateNewRent(e)}>
+                             {clients.map((x, _i) => {
+                                 return <option value={x.id}>{x.username}</option>
+                             })}
+                         </select>
+                     </div> }
                     <div className="value">
                         <h3>Device</h3>
                     </div>
@@ -147,18 +169,42 @@ const RentsPageComponent = () => {
     const getRents = async () => {
         try {
             setIsLoading(true);
-            const fetchedRents = await api.getAllRents();
-            const fetchedUsers = await api.getAllUsers();
+            let fetchedRents: AxiosResponse<RentType[]>;
+            let fetchedUsers: AxiosResponse<UserType[]> | null = null;
+            if (isAdmin) {
+                fetchedRents = await api.getAllRents();
+                fetchedUsers = await api.getAllUsers();
+            } else {
+                fetchedRents = await api.getCurrentUserRents();
+            }
             const fetchedDevices = await api.getAllVirtualDevices();
-            if (fetchedDevices.status === 200 && fetchedUsers.status === 200 && fetchedRents.status === 200) {
+            if ( isAdmin && fetchedDevices.status === 200 && fetchedUsers?.status === 200 && fetchedRents.status === 200) {
                 const response: RentType[] = [];
                 console.log(fetchedRents)
                 fetchedRents.data.forEach(rent => {
                     const temp: RentType = {
                         ...rent,
-                        renterUsername: fetchedUsers.data.filter(user => user.id === rent.userId)[0].username,
+                        renterUsername: fetchedUsers?.data.filter(user => user.id === rent.userId)[0].username,
                         virtualDeviceType: null
                     };
+                    const rentedDevice = fetchedDevices.data.filter(device => device.id === temp.virtualDeviceId)[0];
+                    if (rentedDevice.databaseType) {
+                        temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_DATABASE_SERVER
+                    } else if (rentedDevice.operatingSystemType) {
+                        temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_MACHINE;
+                    } else if (rentedDevice.phoneNumber) {
+                        temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_PHONE;
+                    }
+                    response.push(temp);
+                });
+                setRents(response);
+            } else if (!isAdmin && fetchedDevices.status === 200 && fetchedRents.status === 200) {
+                const response: RentType[] = [];
+                fetchedRents.data.forEach(rent => {
+                   const temp: RentType = {
+                       ...rent,
+                       virtualDeviceType: null
+                   }
                     const rentedDevice = fetchedDevices.data.filter(device => device.id === temp.virtualDeviceId)[0];
                     if (rentedDevice.databaseType) {
                         temp.virtualDeviceType = VirtualDeviceTypeEnum.VIRTUAL_DATABASE_SERVER
@@ -196,7 +242,10 @@ const RentsPageComponent = () => {
                     return <RentComponent rent={x} getRents={getRents}></RentComponent>
                 })}
             </div>
-            { displayCreateRent && <ModalComponent Body={CreateRentBody} close={closeModal}></ModalComponent> }
+            { displayCreateRent && <ModalComponent Body={CreateRentBody} close={e => {
+                e.stopPropagation();
+                closeModal();
+            }}></ModalComponent> }
         </div>
     )
 };

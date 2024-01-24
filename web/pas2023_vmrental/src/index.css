@@ -21,6 +21,7 @@ body {
     background-color: lightgrey;
     box-shadow: -3px 3px 5px 3px black;
     margin-right: 1rem;
+    padding: 1rem;
 }
 
 #component {
@@ -328,4 +329,8 @@ body {
 .user-info > h3, .user-info > p {
     margin: 0;
     padding: 0;
+}
+
+.navbar-link > p {
+    text-align: center;
 }

@@ -79,6 +79,22 @@ export const api = {
     },
 
     getCurrentUser: async (): ApiResponseType<UserType> => {
-        return apiWithConfig.get("users/self");
+        return apiWithConfig.get("/users/self");
+    },
+
+    getCurrentUserRents: async (): ApiResponseType<RentType[]> => {
+        return apiWithConfig.get("/rents/self/rents");
+    },
+
+    createCurrentUsersRent: async (newRent: CreateRentType): ApiResponseType<any> => {
+        return apiWithConfig.post("/rents/self/rents", newRent);
+    },
+
+    deleteCurrentUsersRent: async (rentId: string): ApiResponseType<any> => {
+        return apiWithConfig.delete(`rents/self/rents/${rentId}`);
+    },
+
+    modifyCurrentUser: async (newUser: ModifyUserType) : ApiResponseType<any> => {
+        return apiWithConfig.put("/users/self", newUser);
     }
 };
