@@ -63,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/rents/**").hasAuthority(Role.ADMINISTRATOR.name())
                         .requestMatchers("/rents/self","/rents/self/**").hasAuthority(Role.CLIENT.name())
                         .requestMatchers( "/virtual-devices/**").hasAuthority(Role.RESOURCE_MANAGER.name())
-                        .requestMatchers(HttpMethod.GET,"/virtual-devices").hasAuthority(Role.CLIENT.name())
+                        .requestMatchers("/virtual-devices").hasAuthority(Role.CLIENT.name())
 
 
                 )

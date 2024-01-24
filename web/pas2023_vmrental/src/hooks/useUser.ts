@@ -4,20 +4,27 @@ import {SignInType} from "../types/SignIn.ts";
 import {api} from "../api/api.ts";
 import {useNavigate} from "react-router-dom";
 import {Pathnames} from "../router/pathnames.ts";
+import {useEffect} from "react";
 
 export const useUser = () => {
     const { user, setUser, isLoggingIn, setIsLoggingIn, isFetching, setIsFetching } = useUserState();
     const navigate = useNavigate();
-    const isAuthenticated = user?.userType === UserTypeEnum.CLIENT;
-    const isAdmin = user?.userType === UserTypeEnum.ADMINISTRATOR;
-    const isResourceManager = user?.userType === UserTypeEnum.RESOURCE_MANAGER;
+    let isAuthenticated = !!user?.username;
+    let isAdmin = user?.userType === UserTypeEnum.ADMINISTRATOR;
+    let isResourceManager = user?.userType === UserTypeEnum.RESOURCE_MANAGER;
+
+    useEffect(() => {
+        console.log(`authenticated: ${isAuthenticated}`);
+        console.log(`admin: ${isAdmin}`);
+        console.log(`resource: ${isResourceManager}`);
+    }, [isAuthenticated, isAdmin, isResourceManager]);
 
     const logIn = async (signInData: SignInType) => {
         try {
             setIsLoggingIn(true);
             const { data } = await api.logIn(signInData);
             setUser(data);
-            navigate(Pathnames.user.home);
+            navigate("/");
         } catch (error) {
             console.error(error);
             alert("Loggin in has failed");
@@ -56,6 +63,13 @@ export const useUser = () => {
             setIsFetching(false);
         }
     }
+    useEffect(() => {
+        if (user?.token) {
+            localStorage.setItem("token", JSON.stringify(user.token));
+            getCurrentUser();
+        }
+    }, [user]);
+
 
     return {
         user,

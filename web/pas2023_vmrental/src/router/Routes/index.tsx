@@ -25,22 +25,25 @@ export const RoutesComponent = () => {
 
     return (
         <Routes>
-            { isAuthenticated && userRoutes.map(({ pathname, Component }) => {
-                return <Route key={pathname} path={pathname} element={<UserLayout Component={Component}></UserLayout>}></Route>
-            }) }
-
-            { isAuthenticated && isAdmin && adminRoutes.map(({ pathname, Component }) => {
-                return <Route key={pathname} path={pathname} element={<AdminLayoutComponent Component={Component}></AdminLayoutComponent>}></Route>;
-            }) }
-
-            { isAuthenticated && isResourceManager && resourceManagerRoutes.map(({ pathname, Component }) => {
-                return <Route key={pathname} path={pathname} element={<ResourceManagerLayoutComponent Component={Component}></ResourceManagerLayoutComponent>}></Route>
-            }) }
-
             { !isAuthenticated && publicRoutes.map(({ pathname, Component }) => {
+                console.log("4");
                 return <Route key={pathname} path={pathname} element={<PublicLayout Component={Component}></PublicLayout>}></Route>;
             })}
-            <Route path="*" element={<PublicLayout Component={ErrorPageComponent}></PublicLayout>}></Route>
+
+            { isAuthenticated && isAdmin && adminRoutes.map(({ pathname, Component }) => {
+                console.log("2");
+                return <Route key={pathname} path={pathname} element={<AdminLayoutComponent Component={Component}></AdminLayoutComponent>}></Route>;
+            })}
+
+            { isAuthenticated && isResourceManager && resourceManagerRoutes.map(({ pathname, Component }) => {
+                console.log("3");
+                return <Route key={pathname} path={pathname} element={<ResourceManagerLayoutComponent Component={Component}></ResourceManagerLayoutComponent>}></Route>
+            })}
+
+            { isAuthenticated && userRoutes.map(({ pathname, Component }) => {
+                console.log("1");
+                return <Route key={pathname} path={pathname} element={<UserLayout Component={Component}></UserLayout>}></Route>
+            })}
         </Routes>
     );
 };

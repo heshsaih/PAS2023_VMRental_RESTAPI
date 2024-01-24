@@ -14,24 +14,13 @@ const LogInPageComponent = () => {
         setLoginData({...loginData, [e.target.name]: e.target.value});
     }
 
-    const submit = async () => {
-        try {
-            await logIn(loginData);
-        } catch (error) {
-            console.error(error);
-            alert("Login failed");
-        }
+    const submit = async ()=> {
+        await logIn(loginData);
     }
 
     useEffect(() => {
         getCurrentUser();
     }, []);
-
-    if (isAuthenticated) {
-        return (
-            <Navigate to={Pathnames.user.home} replace></Navigate>
-        );
-    }
 
     return (
         <div className={"page-container"}>

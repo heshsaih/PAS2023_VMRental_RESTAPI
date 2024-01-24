@@ -22,7 +22,7 @@ const ResourceManagerLayoutComponent = ({ Component }: { Component: React.FC }) 
     ]
 
     return (
-        <div id="public-layout">
+        <div id="resource-manager" className={"layout"}>
             <Navbar navbarItems={navbarItems}></Navbar>
             <div id="component">
                 <Component></Component>

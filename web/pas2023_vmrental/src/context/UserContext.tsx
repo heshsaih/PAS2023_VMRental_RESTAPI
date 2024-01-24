@@ -17,12 +17,6 @@ export const UserStateContextProvider = ({ children }: { children: React.ReactNo
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
 
-    useEffect(() => {
-        if (user?.token) {
-            localStorage.setItem("token", JSON.stringify(user.token));
-        }
-    }, [user]);
-
     return (
         <UserStateContext.Provider value={{ user, setUser, isLoggingIn, setIsLoggingIn, isFetching, setIsFetching }}>
             { children }

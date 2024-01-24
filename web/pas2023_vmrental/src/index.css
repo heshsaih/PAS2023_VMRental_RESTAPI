@@ -6,13 +6,13 @@ body {
     margin: 0;
 }
 
-#public-layout {
+.layout {
     display: flex;
     flex-direction: row;
 }
 
 #navbar {
-    width: fit-content;
+    width: max-content;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -315,4 +315,17 @@ body {
 
 #rents-container > h3 {
     text-align: center;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: grey;
+}
+
+.user-info > h3, .user-info > p {
+    margin: 0;
+    padding: 0;
 }

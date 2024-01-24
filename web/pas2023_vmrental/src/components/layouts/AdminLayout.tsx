@@ -32,7 +32,7 @@ const AdminLayoutComponent = ({ Component }: { Component: React.FC }) => {
     ];
 
     return (
-        <div id="public-layout">
+        <div id="admin" className={"layout"}>
             <Navbar navbarItems={navbarItems}></Navbar>
             <div id="component">
                 <Component></Component>

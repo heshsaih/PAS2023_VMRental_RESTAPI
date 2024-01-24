@@ -17,7 +17,7 @@ const PublicLayout = ({ Component }: {Component: React.FC}) => {
     ]
 
     return (
-        <div id="public-layout">
+        <div id="public" className={"layout"}>
             <Navbar navbarItems={navbarItems}></Navbar>
             <div id="component">
                 <Component></Component>

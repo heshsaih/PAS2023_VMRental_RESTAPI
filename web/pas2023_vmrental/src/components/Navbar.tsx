@@ -1,7 +1,9 @@
 import {NavbarItem} from "../types/NavbarItem.ts";
 import {NavLink} from "react-router-dom";
+import {useUser} from "../hooks/useUser.ts";
 
 const NavbarComponent = ({ navbarItems }: { navbarItems: NavbarItem[] }) => {
+    const { user, isAuthenticated } = useUser();
     return (
         <div id="navbar">
             <ul id="navbar-items">
@@ -13,6 +15,11 @@ const NavbarComponent = ({ navbarItems }: { navbarItems: NavbarItem[] }) => {
                         </NavLink>
                     </li>
                 }) }
+                { isAuthenticated && user?.userType && <div className={"user-info"}>
+                    <h3>Welcome</h3>
+                    <p>{ user.username }</p>
+                    <p>{ user.userType }</p>
+                </div> }
             </ul>
         </div>
     );
