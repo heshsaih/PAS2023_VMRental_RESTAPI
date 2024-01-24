@@ -76,13 +76,12 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        System.out.println(token);
-        token = token.substring(7);
+        String tokenWithoutBearer = token.startsWith("Bearer ") ? token.substring(7) : token;
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(tokenWithoutBearer)
                 .getBody();
     }
 
