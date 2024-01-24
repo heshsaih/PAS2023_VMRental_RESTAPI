@@ -76,6 +76,7 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
+        System.out.println(token);
         token = token.substring(7);
         return Jwts
                 .parserBuilder()
