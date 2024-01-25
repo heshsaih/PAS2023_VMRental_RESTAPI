@@ -1,4 +1,4 @@
-package com.example.vmrentalrest.manegerTests;
+package com.example.vmrentalrest.managerTests;
 
 import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.dto.updatedto.UpdateUserDTO;
@@ -6,7 +6,6 @@ import com.example.vmrentalrest.exceptions.IllegalOperationException;
 import com.example.vmrentalrest.exceptions.RecordNotFoundException;
 import com.example.vmrentalrest.managers.UserManager;
 import com.example.vmrentalrest.model.enums.ClientType;
-import com.example.vmrentalrest.model.enums.UserType;
 import com.example.vmrentalrest.model.users.Address;
 import com.example.vmrentalrest.model.users.Client;
 import org.assertj.core.api.Assertions;

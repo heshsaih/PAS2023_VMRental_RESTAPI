@@ -1,4 +1,4 @@
-package com.example.vmrentalrest.manegerTests;
+package com.example.vmrentalrest.managerTests;
 
 import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.dto.updatedto.UpdateVirtualDeviceDTO;
@@ -8,7 +8,6 @@ import com.example.vmrentalrest.managers.VirtualDeviceManager;
 import com.example.vmrentalrest.model.enums.DatabaseType;
 import com.example.vmrentalrest.model.enums.OperatingSystemType;
 
-import com.example.vmrentalrest.model.enums.VirtualDeviceType;
 import com.example.vmrentalrest.model.virtualdevices.VirtualDatabaseServer;
 import com.example.vmrentalrest.model.virtualdevices.VirtualMachine;
 import com.example.vmrentalrest.model.virtualdevices.VirtualPhone;

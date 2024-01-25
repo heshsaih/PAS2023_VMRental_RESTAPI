@@ -1,4 +1,4 @@
-package com.example.vmrentalrest.manegerTests;
+package com.example.vmrentalrest.managerTests;
 
 import com.example.vmrentalrest.DBManagementTools;
 import com.example.vmrentalrest.dto.updatedto.UpdateRentDTO;
