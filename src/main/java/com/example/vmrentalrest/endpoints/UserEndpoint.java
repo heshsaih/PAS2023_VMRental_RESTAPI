@@ -1,5 +1,6 @@
 package com.example.vmrentalrest.endpoints;
 
+import com.example.vmrentalrest.security.JwsService;
 import com.example.vmrentalrest.security.JwtService;
 import com.example.vmrentalrest.dto.SignInDTO;
 import com.example.vmrentalrest.dto.createuserdto.CreateClientDTO;
@@ -31,6 +32,7 @@ public class UserEndpoint {
     private final UserManager userManager;
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
+    private final JwsService jwsService;
 
     @GetMapping
     public ResponseEntity<List<GetUserDTO>> getAllUsers(){
@@ -103,6 +105,7 @@ public class UserEndpoint {
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> signIn(@RequestBody SignInDTO signInDTO) {
         return ResponseEntity.ok()
+                .eTag(jwsService.generateSign(userManager.findByUsername(signInDTO.getUsername()).getId()))
                 .body(authenticationService.signIn(signInDTO));
     }
     @PostMapping("/signup")

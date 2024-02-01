@@ -15,4 +15,8 @@ public class RestExceptionHandler {
     public ResponseEntity<Object> handleIllegalOperationException(IllegalOperationException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler
+    public ResponseEntity<Object> handleJwsException(JwsException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.PRECONDITION_FAILED);
+    }
 }

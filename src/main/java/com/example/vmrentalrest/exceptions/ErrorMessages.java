@@ -47,5 +47,9 @@ public class ErrorMessages {
         public static final String VIRTUAL_DEVICE_NOT_FOUND_MESSAGE = "{VIRTUAL_DEVICE_NOT_FOUND}";
         public static final String RENT_NOT_FOUND_MESSAGE = "{RENT_NOT_FOUND}";
     }
+    public class InvalidJWSMessages {
+        public static final String INVALID_JWS_MESSAGE = "{INVALID_JWS}";
+        public static final String NOT_MATCHING_JWS_MESSAGE = "{NOT_MATCHING_JWS}";
+    }
 
 }
