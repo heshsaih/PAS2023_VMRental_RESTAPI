@@ -9,6 +9,7 @@ import com.example.vmrentalrest.model.virtualdevices.VirtualDevice;
 import com.example.vmrentalrest.model.virtualdevices.VirtualMachine;
 import com.example.vmrentalrest.model.virtualdevices.VirtualPhone;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,29 +21,35 @@ public class VirtualDeviceEndpoint {
 
     private final VirtualDeviceManager virtualDeviceManager;
     @GetMapping
-    public List<VirtualDevice> getAllVirtualDevices() {
-        return virtualDeviceManager.findAllVirtualDevices();
+    public ResponseEntity<List<VirtualDevice>> getAllVirtualDevices() {
+        return ResponseEntity.ok()
+                .body(virtualDeviceManager.findAllVirtualDevices());
     }
     @GetMapping("/{id}")
-    public VirtualDevice getVirtualDeviceById(@PathVariable String id) {
-        return virtualDeviceManager.findVirtualDeviceById(id);
+    public ResponseEntity<VirtualDevice> getVirtualDeviceById(@PathVariable String id) {
+        return ResponseEntity.ok()
+                .body(virtualDeviceManager.findVirtualDeviceById(id));
     }
     @PostMapping("/createvirtual-machine")
-    public VirtualMachine createVirtualMachine(@RequestBody VirtualMachine virtualMachine) {
-        return virtualDeviceManager.createVirtualMachine(virtualMachine);
+    public ResponseEntity<VirtualMachine> createVirtualMachine(@RequestBody VirtualMachine virtualMachine) {
+        return ResponseEntity.ok()
+                .body(virtualDeviceManager.createVirtualMachine(virtualMachine));
     }
 
     @PostMapping("/createvirtual-database-server")
-    public VirtualDatabaseServer createVirtualDatabaseServer(@RequestBody VirtualDatabaseServer virtualDatabaseServer) {
-        return virtualDeviceManager.createVirtualDatabaseServer(virtualDatabaseServer);
+    public ResponseEntity<VirtualDatabaseServer> createVirtualDatabaseServer(@RequestBody VirtualDatabaseServer virtualDatabaseServer) {
+        return ResponseEntity.ok()
+                .body(virtualDeviceManager.createVirtualDatabaseServer(virtualDatabaseServer));
     }
     @PostMapping("/createvirtual-phone")
-    public VirtualPhone createVirtualPhone(@RequestBody VirtualPhone virtualPhone) {
-        return virtualDeviceManager.createVirtualPhone(virtualPhone);
+    public ResponseEntity<VirtualPhone> createVirtualPhone(@RequestBody VirtualPhone virtualPhone) {
+        return ResponseEntity.ok()
+                .body(virtualDeviceManager.createVirtualPhone(virtualPhone));
     }
     @PutMapping("/{id}")
-    public VirtualDevice updateVirtualDevice(@PathVariable String id, @RequestBody UpdateVirtualDeviceDTO updateVirtualDeviceDTO) {
-        return virtualDeviceManager.updateVirtualDevice(id,updateVirtualDeviceDTO);
+    public ResponseEntity<VirtualDevice> updateVirtualDevice(@PathVariable String id, @RequestBody UpdateVirtualDeviceDTO updateVirtualDeviceDTO) {
+        return ResponseEntity.ok()
+                .body(virtualDeviceManager.updateVirtualDevice(id,updateVirtualDeviceDTO));
     }
     @PatchMapping("/{id}/updatedatabasetype")
     public void updateDatabaseType(@PathVariable String id, @RequestParam DatabaseType databaseType) {
@@ -60,6 +67,4 @@ public class VirtualDeviceEndpoint {
     public void deleteVirtualDevice(@PathVariable String id) {
         virtualDeviceManager.deleteVirtualDevice(id);
     }
-
-
 }

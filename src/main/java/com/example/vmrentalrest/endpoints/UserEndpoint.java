@@ -18,6 +18,7 @@ import com.example.vmrentalrest.model.enums.ClientType;
 import com.example.vmrentalrest.model.users.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,53 +33,63 @@ public class UserEndpoint {
     private final JwtService jwtService;
 
     @GetMapping
-    public List<GetUserDTO> getAllUsers(){
-        return userManager.findAllUsers()
+    public ResponseEntity<List<GetUserDTO>> getAllUsers(){
+        return ResponseEntity.ok()
+                .body(userManager.findAllUsers()
                 .stream()
                 .map(User::convertToDTO)
-                .toList();
+                .toList());
     }
     @GetMapping("/{id}")
-    public GetUserDTO getUserById(@PathVariable String id) {
-            return userManager.findUserById(id).convertToDTO();
+    public ResponseEntity<GetUserDTO> getUserById(@PathVariable String id) {
+            return ResponseEntity.ok()
+                    .body(userManager.findUserById(id).convertToDTO());
     }
     @GetMapping("/getbyusername")
-    public GetUserDTO getUserByUsername(@RequestParam String username) {
-        return userManager.findByUsername(username).convertToDTO();
+    public ResponseEntity<GetUserDTO> getUserByUsername(@RequestParam String username) {
+        return ResponseEntity.ok()
+                .body(userManager.findByUsername(username).convertToDTO());
     }
     @GetMapping("/getbyusernamecontains/{username}")
-    public List<GetUserDTO> getUsersByUsernameContains(@PathVariable String username) {
-        return userManager.findAllByUsernameContainsIgnoreCase(username)
+    public ResponseEntity<List<GetUserDTO>> getUsersByUsernameContains(@PathVariable String username) {
+        return ResponseEntity.ok()
+                .body(userManager.findAllByUsernameContainsIgnoreCase(username)
                 .stream()
                 .map(User::convertToDTO)
-                .toList();
+                .toList());
     }
 
     @PostMapping("/createadministrator")
-    public GetAdministratorDTO createAdministrator(@RequestBody CreateAdministratorDTO createAdministratorDTO) {
-        return new GetAdministratorDTO(userManager.createAdministrator(createAdministratorDTO.createAdministratorFromDTO()));
+    public ResponseEntity<GetAdministratorDTO> createAdministrator(@RequestBody CreateAdministratorDTO createAdministratorDTO) {
+        return ResponseEntity.ok()
+                .body(new GetAdministratorDTO(userManager.createAdministrator(createAdministratorDTO.createAdministratorFromDTO())));
     }
     @PostMapping("/createclient")
-    public GetClientDTO createClient(@RequestBody CreateClientDTO createClientDTO) {
-        return userManager.createClient(createClientDTO.createClientFromDTO()).convertToDTO();
+    public ResponseEntity<GetClientDTO> createClient(@RequestBody CreateClientDTO createClientDTO) {
+        return ResponseEntity.ok()
+                .body(userManager.createClient(createClientDTO.createClientFromDTO()).convertToDTO());
     }
     @PostMapping("/createresourcemanager")
-    public GetResourceManagerDTO createResourceManager(@RequestBody CreateResourceManagerDTO createResourceManagerDTO) {
-        return userManager.createResourceManager(createResourceManagerDTO.createResourceManagerFromDTO()).convertToDTO();
+    public ResponseEntity<GetResourceManagerDTO> createResourceManager(@RequestBody CreateResourceManagerDTO createResourceManagerDTO) {
+        return ResponseEntity.ok()
+                .body(userManager.createResourceManager(createResourceManagerDTO.createResourceManagerFromDTO())
+                        .convertToDTO());
     }
 
 
     @PutMapping("/{id}")
-    public GetUserDTO updateUser(@PathVariable String id, @RequestBody UpdateUserDTO updateUserDTO) {
-        return userManager.updateUser(id, updateUserDTO).convertToDTO();
+    public ResponseEntity<GetUserDTO> updateUser(@PathVariable String id, @RequestBody UpdateUserDTO updateUserDTO) {
+        return ResponseEntity.ok()
+                .body(userManager.updateUser(id, updateUserDTO).convertToDTO());
     }
     @PatchMapping("/{id}/updateclienttype")
     public void updateClientType(@PathVariable String id, @RequestParam ClientType clientType) {
         userManager.updateClientType(id, clientType);
     }
     @GetMapping("/{id}/getactiverents")
-    public List<Rent> getActiveRents(@PathVariable String id) {
-        return userManager.getActiveRents(id);
+    public ResponseEntity<List<Rent>> getActiveRents(@PathVariable String id) {
+        return ResponseEntity.ok()
+                .body(userManager.getActiveRents(id));
     }
     @PatchMapping("/{id}/activate")
     public void activateUser(@PathVariable String id) {
@@ -90,21 +101,25 @@ public class UserEndpoint {
     }
 
     @PostMapping("/signin")
-    public JwtAuthenticationResponse signIn(@RequestBody SignInDTO signInDTO) {
-        return authenticationService.signIn(signInDTO);
+    public ResponseEntity<JwtAuthenticationResponse> signIn(@RequestBody SignInDTO signInDTO) {
+        return ResponseEntity.ok()
+                .body(authenticationService.signIn(signInDTO));
     }
     @PostMapping("/signup")
-    public JwtAuthenticationResponse signUp(@RequestBody CreateClientDTO createClientDTO) {
-        return authenticationService.signUp(createClientDTO);
+    public ResponseEntity<JwtAuthenticationResponse> signUp(@RequestBody CreateClientDTO createClientDTO) {
+        return ResponseEntity.ok()
+                .body(authenticationService.signUp(createClientDTO));
 
     }
     @GetMapping("/self")
-    public GetUserDTO getSelf(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
-        return userManager.findUserById(jwtService.extractUserId(token)).convertToDTO();
+    public ResponseEntity<GetUserDTO> getSelf(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        return ResponseEntity.ok()
+                .body(userManager.findUserById(jwtService.extractUserId(token)).convertToDTO());
     }
     @PutMapping("/self")
-    public GetUserDTO updateSelf(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody UpdateUserDTO updateUserDTO) {
-        return userManager.updateUser(jwtService.extractUserId(token), updateUserDTO).convertToDTO();
+    public ResponseEntity<GetUserDTO> updateSelf(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody UpdateUserDTO updateUserDTO) {
+        return ResponseEntity.ok()
+                .body(userManager.updateUser(jwtService.extractUserId(token), updateUserDTO).convertToDTO());
     }
     @PostMapping("/self/signout")
     public void signOut(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {

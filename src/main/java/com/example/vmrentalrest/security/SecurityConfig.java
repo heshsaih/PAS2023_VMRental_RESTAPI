@@ -26,6 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.ShallowEtagHeaderFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -76,6 +77,10 @@ public class SecurityConfig {
         hierarchy.setHierarchy(Role.ADMINISTRATOR.name() + " > " + Role.RESOURCE_MANAGER.name() + "\n"
                 + Role.RESOURCE_MANAGER.name() + " > " + Role.CLIENT.name());
         return hierarchy;
+    }
+    @Bean
+    public ShallowEtagHeaderFilter shallowEtagHeaderFilter() {
+        return new ShallowEtagHeaderFilter();
     }
 
     @Bean
