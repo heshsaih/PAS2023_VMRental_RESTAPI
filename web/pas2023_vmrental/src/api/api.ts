@@ -87,7 +87,7 @@ export const api = {
     },
 
     createCurrentUsersRent: async (newRent: CreateRentType): ApiResponseType<any> => {
-        return apiWithConfig.post("/rents/self/rents", newRent);
+        return apiWithConfig.post("/rents/self/rents", newRent).catch(error => error);
     },
 
     deleteCurrentUsersRent: async (rentId: string): ApiResponseType<any> => {

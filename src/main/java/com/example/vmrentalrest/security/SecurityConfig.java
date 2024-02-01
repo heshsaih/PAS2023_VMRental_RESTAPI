@@ -95,6 +95,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.applyPermitDefaultValues();
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "PATCH"));
+        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Headers", "Etag"));
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

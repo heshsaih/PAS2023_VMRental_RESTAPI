@@ -98,7 +98,7 @@ const UsersPageComponent = () => {
         };
 
         return (
-            <div id="modal-body">
+            <div id="modal-body" onClick={e => e.stopPropagation()}>
                 <h1>Create a user</h1>
                 <div id="new-user-inputs" className="details">
                     <div className="value">

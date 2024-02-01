@@ -1,4 +1,5 @@
 import axios from "axios";
+import {api} from "./api.ts";
 
 export const API_URL = "https://localhost:8080";
 export const TIMEOUT_IN_MS = 30000;
@@ -21,12 +22,24 @@ apiWithConfig.interceptors.request.use((config) => {
     return config;
 });
 
+apiWithConfig.interceptors.request.use((config) => {
+    const etag = window.localStorage.getItem("etag");
+    if (etag && config.headers) {
+        config.headers["If-Match"] = JSON.parse(etag);
+    }
+    return config;
+});
+
+
 apiWithConfig.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        console.log(response);
+        return response;
+    },
     (error) => {
         const status = error.response?.status;
         if (status === 401 || status === 404) {
-            localStorage.removeItem("token");
+            window.localStorage.removeItem("token");
         }
         return Promise.reject(error);
     }

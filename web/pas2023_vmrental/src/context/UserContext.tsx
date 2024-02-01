@@ -6,8 +6,10 @@ interface UserStateType {
     setUser: (newUser: UserType | null) => void,
     isLoggingIn: boolean,
     setIsLoggingIn: (state: boolean) => void,
-    isFetching: boolean
-    setIsFetching: (state: boolean) => void
+    isFetching: boolean,
+    setIsFetching: (state: boolean) => void,
+    etag: string | null,
+    setEtag: (etag: string) => void
 }
 
 const UserStateContext = createContext<UserStateType | null>(null);
@@ -16,9 +18,10 @@ export const UserStateContextProvider = ({ children }: { children: React.ReactNo
     const [user, setUser] = useState<UserType | null>(null);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
+    const [etag, setEtag] = useState(null);
 
     return (
-        <UserStateContext.Provider value={{ user, setUser, isLoggingIn, setIsLoggingIn, isFetching, setIsFetching }}>
+        <UserStateContext.Provider value={{ user, setUser, isLoggingIn, setIsLoggingIn, isFetching, setIsFetching, etag, setEtag }}>
             { children }
         </UserStateContext.Provider>
     )

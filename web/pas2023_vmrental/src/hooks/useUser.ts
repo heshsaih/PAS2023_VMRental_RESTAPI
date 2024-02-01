@@ -7,7 +7,7 @@ import {Pathnames} from "../router/pathnames.ts";
 import {useEffect} from "react";
 
 export const useUser = () => {
-    const { user, setUser, isLoggingIn, setIsLoggingIn, isFetching, setIsFetching } = useUserState();
+    const { user, setUser, isLoggingIn, setIsLoggingIn, isFetching, setIsFetching, etag, setEtag } = useUserState();
     const navigate = useNavigate();
     let isAuthenticated = !!user?.username;
     let isAdmin = user?.userType === UserTypeEnum.ADMINISTRATOR;
@@ -22,8 +22,9 @@ export const useUser = () => {
     const logIn = async (signInData: SignInType) => {
         try {
             setIsLoggingIn(true);
-            const { data } = await api.logIn(signInData);
+            const { data, headers } = await api.logIn(signInData);
             setUser(data);
+            setEtag(headers["etag"].substring(1, headers["etag"].length - 1));
             navigate("/");
         } catch (error) {
             console.error(error);
@@ -41,7 +42,7 @@ export const useUser = () => {
             console.error(error);
             alert("Logging out has failed");
         } finally {
-            localStorage.removeItem("token");
+            window.localStorage.removeItem("token");
             setUser(null);
             setIsFetching(false);
             navigate(Pathnames.public.home);
@@ -51,7 +52,7 @@ export const useUser = () => {
     const getCurrentUser = async () => {
         try {
             setIsFetching(true);
-            if (localStorage.getItem("token")) {
+            if (window.localStorage.getItem("token")) {
                 const { data } = await api.getCurrentUser();
                 setUser(data);
                 console.log(data);
@@ -65,10 +66,17 @@ export const useUser = () => {
     }
     useEffect(() => {
         if (user?.token) {
-            localStorage.setItem("token", JSON.stringify(user.token));
+            window.localStorage.setItem("token", JSON.stringify(user.token));
             getCurrentUser();
         }
     }, [user]);
+
+    useEffect(() => {
+        if (etag) {
+            window.localStorage.setItem("etag", JSON.stringify(etag));
+            console.log(window.localStorage.getItem("etag"));
+        }
+    }, [etag]);
 
 
     return {
