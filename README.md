@@ -1,1 +1,1 @@
-Spring Boot CRUD web application which allows users to rent virtual machines. It uses MongoDB as it`s main datasource with transactions. Authorisation is realised via JWT token credentials. It uses different profile for tests.
+CRUD Spring Boot web application with a front-end application in React JS, created for a university project. I'm the author of the front-end.
